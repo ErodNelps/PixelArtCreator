@@ -21,29 +21,44 @@ namespace PixelCreator
     public class PixelEditor : FrameworkElement, INotifyPropertyChanged
     {
         private readonly Surface _surface;
-        public Visual _gridLines;
-        //public bool isEnabled { get; set; } = true;
-        public int PixelWidth { get; set; } = 128;
-        public int PixelHeight { get; set; } = 128;
-        public int Magnification { get; set; } = 10;
+        private readonly Visual _gridTransparent;
+
+        public int PixelWidth { get; set; }
+        public int PixelHeight { get; set; }
+        public int Magnification { get; } = 10;
         public Color BrushColor { get; set; } = Colors.Black;
+
         public PixelEditor()
         {
+            _gridTransparent = CreateGridLines();
             _surface = new Surface(this);
-            _gridLines = CreateGridLines();
 
             Cursor = Cursors.Pen;
+            AddVisualChild(_gridTransparent);
             AddVisualChild(_surface);
-            AddVisualChild(_gridLines);
+        }
+        public PixelEditor(int pixelWidth, int pixelHeight)
+        {
+            PixelWidth = pixelWidth;
+            PixelHeight = pixelHeight;
+            
+            _gridTransparent = CreateGridLines();
+            _surface = new Surface(this);
+
+            Cursor = Cursors.Pen;
+            AddVisualChild(_gridTransparent);
+            AddVisualChild(_surface);
         }
 
         protected override int VisualChildrenCount => 2;
-
+        
+        //Setting z-order of visual children
         protected override Visual GetVisualChild(int index)
         {
-            return index == 0 ? _surface : _gridLines;
+            return index == 0 ? _gridTransparent : _surface;
         }
-
+        
+        //Draw pixel
         private void Draw()
         {
             var p = Mouse.GetPosition(_surface);
@@ -59,13 +74,20 @@ namespace PixelCreator
                 (int)(p.Y / magnification),
                 BrushColor);
 
-            _surface.InvalidateVisual();
+            //_surface.InvalidateVisual();
+        }
+
+        public Point? GetMousePosition(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            var p = e.GetPosition(this);
+            Debug.WriteLine($"{(int)(p.X + 1) / 10} - {(int)(p.Y + 1) / 10}");
+            return p;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
             if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
                 Draw();
         }
@@ -107,20 +129,22 @@ namespace PixelCreator
             var w = PixelWidth;
             var h = PixelHeight;
             var m = Magnification;
-            var d = -0.5d; // snap gridlines to device pixels
-
-            var pen = new Pen(new SolidColorBrush(Color.FromArgb(63, 63, 63, 63)), 1d);
-
+            var d = -0.5d;
+            var pen = new Pen();
             pen.Freeze();
-
-            for (var x = 1; x < w; x++)
-                dc.DrawLine(pen, new Point(x * m + d, 0), new Point(x * m + d, h * m));
-
-            for (var y = 1; y < h; y++)
-                dc.DrawLine(pen, new Point(0, y * m + d), new Point(w * m, y * m + d));
+            int flip = 0;
+            for (var x = 0; x < w * m; x += m)
+            {
+                flip = 1 - flip;
+                for (var y = 0; y < h * m; y += m)
+                {
+                    var brush = new SolidColorBrush(flip % 2 == 0 ? Colors.Transparent : Colors.LightGray);
+                    dc.DrawRectangle(brush, pen, new Rect(x, y, m, m));
+                    flip = 1 - flip;
+                }
+            }
 
             dc.Close();
-
             return dv;
         }
 
@@ -143,6 +167,7 @@ namespace PixelCreator
                 _owner = owner;
                 _bitmap = BitmapFactory.New(owner.PixelWidth*owner.Magnification, owner.PixelHeight*owner.Magnification);
                 _bitmap.Clear(Colors.Transparent);
+                
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
             }
             

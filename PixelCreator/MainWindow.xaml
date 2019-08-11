@@ -8,7 +8,7 @@
         xmlns:controls="clr-namespace:PixelCreator"
         xmlns:Fluent="urn:fluent-ribbon"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" MouseRightButtonDown="Window_MouseRightButtonDown" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="800" Width="800" MouseRightButtonDown="Window_MouseRightButtonDown" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary Source="Utils/Icons.xaml"/>
     </Window.Resources>
@@ -88,25 +88,37 @@
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Rows="3"/>
+                                    <UniformGrid Rows="2"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.Items>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent"
+                                             ToggleButton.Checked="PencilTool_Selected">
                                     <Image Source="/Icons/rectangle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}">
-                                    <Image x:Name="meow"/>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
+                                    <Image Source="/Icons/circle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Content="Line" Style="{StaticResource {x:Type ToggleButton}}"/>
-                                <RadioButton Content="Hand" Style="{StaticResource {x:Type ToggleButton}}"/>
-                                <RadioButton Content="ZoomIn" Style="{StaticResource {x:Type ToggleButton}}"/>
-                                <RadioButton Content="zoomOut" Style="{StaticResource {x:Type ToggleButton}}"/>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
+                                    <Image Source="/Icons/straight-line.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
+                                    <Image Source="/Icons/rotate-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
+                                    <Image Source="/Icons/rotate-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
                             </ItemsControl.Items>
                         </ItemsControl>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Header="Color">
-                        <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="primaryColor" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Width="40" Background="Transparent" BorderBrush="Transparent">
+                                <Rectangle Width="34" Height="34" Fill="{Binding _BrushColor_Secondary}" Stroke="Black"></Rectangle>
+                            </RadioButton>
+                            <RadioButton x:Name="secondColor" Style="{StaticResource {x:Type ToggleButton}}" Width="40" Background="Transparent" BorderBrush="Transparent">
+                                <Rectangle Width="25" Height="25" Fill="{Binding _BrushColor_Secondary}" Stroke="Black"></Rectangle>
+                            </RadioButton>
                             <Fluent:DropDownButton Header="Color 1" Height="50">
                                 <Fluent:ColorGallery x:Name="colorGalleryStandard" SelectedColor="Black" IsNoColorButtonVisible="False" SelectedColorChanged="ColorGallery_SelectedColorChanged">
                                 </Fluent:ColorGallery>
@@ -135,10 +147,17 @@
                         </EventTrigger>
                     </StackPanel.Triggers>
                     <Label Content="GIF MAKING PANEL" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"></Label>
-                    <Button Content="Left"></Button>
-                    <Button Content="Right"></Button>
-                    <Button Content="Add Frame" Click="AddFrame_Clicked"></Button>
-                    <Button Content="Delete">
+                    <Button BorderBrush="Transparent" Background="Transparent" >
+                        <Image Source="/Icons/move-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button BorderBrush="Transparent" Background="Transparent" >
+                        <Image Source="/Icons/move-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button BorderBrush="Transparent" Background="Transparent" Click="AddFrame_Clicked">
+                        <Image Source="/Icons/add-frame.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button BorderBrush="Transparent" Background="Transparent">
+                        <Image Source="/Icons/delete.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
                 </StackPanel>
                 <!--Frame Container-->
@@ -150,7 +169,7 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel>
+                            <StackPanel Background="White">
                                 <Border BorderBrush="Black" BorderThickness="1">
                                     <Image Width="100" Height="100" Source="{Binding bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                 </Border>
@@ -160,23 +179,28 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </DockPanel>
+            <Grid DockPanel.Dock="Bottom">
+                <Label Height="40" Width="100" HorizontalAlignment="Left" ></Label>
+                <Label Height="40" Width="100" HorizontalAlignment="Right"></Label>
+            </Grid>
+            <Grid x:Name="ParentGrid"  RenderTransformOrigin="0.5,0.5">
+                <Grid.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="scaleTransform" />
+                    </TransformGroup>
+                </Grid.LayoutTransform>
+
+            </Grid>
             <ScrollViewer x:Name="scrollViewer" Background="Transparent" BorderBrush="Transparent"
                   Loaded="scrollViewer_Loaded"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
+                <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="500" Width="500" x:Name="pixelGrid" MouseEnter="pixelGridMouseEnter">
 
-                <Grid x:Name="pixelGrid" Width="500" Height="500" RenderTransformOrigin="0.5,0.5">
-                    <Grid.LayoutTransform>
-                        <TransformGroup>
-                            <ScaleTransform x:Name="scaleTransform" />
-                        </TransformGroup>
-                    </Grid.LayoutTransform>
-                    <Viewbox>
+                </Viewbox>
 
-                    </Viewbox>
-                </Grid>
+                
             </ScrollViewer>
-            
         </DockPanel>
 
         <RadialMenu:RadialMenu IsOpen="{Binding IsOpen1}">

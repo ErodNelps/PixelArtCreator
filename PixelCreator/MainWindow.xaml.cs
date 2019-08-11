@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -29,19 +31,40 @@ namespace PixelCreator
         {
             Pencil, FillBucket, ColorPicker, Hand, ZoomIn, ZoomOut
         }
-        PixelEditor pixelEditor = new PixelEditor() {};
+
+        PixelEditor pixelEditor;
         BindingList<FrameGIF> frameCollection = new BindingList<FrameGIF>();
-        Color _brushColor { get; set; }
+        Color _brushColor_Primary { get; set; }
+        Color _brushColor_Secondary { get; set; }
+        Brush _BrushColor_Primary { get; set; }
+        Brush _BrushColor_Secondary { get; set; }
         List<Color> _recentColors = new List<Color>();
         Tool selectedTool;
-        public int _framePanelHeightFrom { get; set; }
-        public int _framePanelHeightTo { get; set; }
+
+        public int _gifPanelHeightFrom { get; set; }
+        public int _gifPanelHeightTo { get; set; }
+        public int mousePos_X { get; set; }
+        public int mousePos_Y { get; set; }
+
+        private void pixelGridMouseEnter(object sender, MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            pixelEditor.GetMousePosition(e);
+        }
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
-            pixelGrid.Children.Add(pixelEditor);
+
+            pixelEditor = new PixelEditor(128,128);
+            //ParentGrid.Children.Add(pixelEditor);
+            pixelGrid.Child = pixelEditor;
+            //pixelGrid.Children.Add(pixelEditor);
             FrameContainer.ItemsSource = frameCollection;
+            _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
+            
+            _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
         }
 
         private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -64,12 +87,19 @@ namespace PixelCreator
             if (colorGalleryStandard.SelectedColor.HasValue)
             {
                 Color selectedColor = colorGalleryStandard.SelectedColor.Value;
-                //var Red = C.R;
-                //var Green = C.G;
-                //var Blue = C.B;
-                //long colorVal = Convert.ToInt64(Blue * (Math.Pow(256, 0)) + Green * (Math.Pow(256, 1)) + Red * (Math.Pow(256, 2)));
-                _brushColor = selectedColor;
-                pixelEditor.BrushColor = _brushColor;
+                if (primaryColor.IsChecked == true)
+                {
+                    _brushColor_Primary = selectedColor;
+                    _BrushColor_Primary = Brushes.Red;
+                    RaisePropertyChanged("_BrushColor_Primary");
+                }
+                else if(secondColor.IsChecked == true)
+                {
+                    _brushColor_Secondary = selectedColor;
+                    _BrushColor_Secondary = Brushes.Orange;
+                    RaisePropertyChanged("_BrushColor_Secondary");
+                }
+                pixelEditor.BrushColor = _brushColor_Primary;
                 int index = 0;
                 if (!isRecentlyPicked(selectedColor,ref index) && _recentColors.Count <= 10)
                 {
@@ -275,21 +305,63 @@ namespace PixelCreator
         {
             if (flag == true)
             {
-                _framePanelHeightFrom = 170;
-                _framePanelHeightTo = 35;
+                _gifPanelHeightFrom = 170;
+                _gifPanelHeightTo = 35;
                 RaisePropertyChanged("_framePanelHeightFrom");
                 RaisePropertyChanged("_framePanelHeightTo");
                 easeMode.EasingMode = EasingMode.EaseIn;
             }
             else if (flag == false)
             {
-                _framePanelHeightFrom = 35;
-                _framePanelHeightTo = 170;
+                _gifPanelHeightFrom = 35;
+                _gifPanelHeightTo = 170;
                 RaisePropertyChanged("_framePanelHeightFrom");
                 RaisePropertyChanged("_framePanelHeightTo");
                 easeMode.EasingMode = EasingMode.EaseOut;
             }
             flag = !flag;
+        }
+        private void AddFrame_Clicked(object sender, RoutedEventArgs e)
+        {
+            System.Drawing.Bitmap bitmap = pixelEditor.ToBitmap();
+
+            string fileName = "file1.png";
+
+            CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.GetWriteableBitmap(), speed = 100 });
+        }
+
+        void CreateThumbnail(string filename, BitmapSource image5)
+        {
+            if (filename != string.Empty)
+            {
+                using (FileStream stream5 = new FileStream(filename, FileMode.Create))
+                {
+                    PngBitmapEncoder encoder5 = new PngBitmapEncoder();
+                    encoder5.Frames.Add(BitmapFrame.Create(image5));
+                    encoder5.Save(stream5);
+                }
+            }
+        }
+
+        public BitmapImage BitmapFromSource(BitmapSource bitmapSource)
+        {
+
+            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+            System.IO.MemoryStream memoryStream = new System.IO.MemoryStream();
+            BitmapImage bImg = new BitmapImage();
+
+            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+            encoder.Save(memoryStream);
+
+            memoryStream.Position = 0;
+            bImg.BeginInit();
+            bImg.StreamSource = memoryStream;
+            bImg.EndInit();
+
+            memoryStream.Close();
+
+            return bImg;
         }
         /* #region Relay Command for radial Menu */
         private bool _isOpen1 = false;
@@ -397,32 +469,6 @@ namespace PixelCreator
                     }
                 );
             }
-        }
-
-        private void AddFrame_Clicked(object sender, RoutedEventArgs e)
-        {
-            BitmapImage image = BitmapFromSource(pixelEditor.GetWriteableBitmap());
-            meow.Source = image;
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.GetWriteableBitmap(), speed = 100 });
-        }
-        public BitmapImage BitmapFromSource(BitmapSource bitmapSource)
-        {
-
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            System.IO.MemoryStream memoryStream = new System.IO.MemoryStream();
-            BitmapImage bImg = new BitmapImage();
-
-            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-            encoder.Save(memoryStream);
-
-            memoryStream.Position = 0;
-            bImg.BeginInit();
-            bImg.StreamSource = memoryStream;
-            bImg.EndInit();
-
-            memoryStream.Close();
-
-            return bImg;
         }
         /* #endregion */
     }

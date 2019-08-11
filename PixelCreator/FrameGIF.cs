@@ -22,6 +22,7 @@ namespace PixelCreator
     class FrameGIF
     {
         public WriteableBitmap bitmap { get; set; }
+        public BitmapImage image { get; set; }
         public int speed { get; set; }
     }
 }

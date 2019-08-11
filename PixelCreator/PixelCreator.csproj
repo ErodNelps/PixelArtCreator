@@ -120,12 +120,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\add3.png" />
     <Resource Include="Icons\clear.png" />
     <Resource Include="Icons\save.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\circle-shape-outline.png" />
     <Resource Include="Icons\color-picker.png" />
     <Resource Include="Icons\cut.png" />
     <Resource Include="Icons\grab.png" />
@@ -137,6 +135,19 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\zoom-in.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\circle.png" />
+    <Resource Include="Icons\rotate-left.png" />
+    <Resource Include="Icons\rotate-right.png" />
+    <Resource Include="Icons\straight-line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\add-frame.png" />
+    <Resource Include="Icons\delete.png" />
+    <Resource Include="Icons\move-left.png" />
+    <Resource Include="Icons\move-right.png" />
+    <Resource Include="Icons\open.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
