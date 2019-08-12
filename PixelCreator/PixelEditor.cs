@@ -86,6 +86,62 @@ namespace PixelCreator
             return p;
         }
 
+        public Color GetPixelColor(int x, int y)
+        {
+            return _surface.GetColor(x, y);
+        }
+
+        //FILL BUCKET
+        public void floodfill(int x, int y, Color targetColor, Color replacementColor)
+        {
+            var magnification = Magnification;
+            var surfaceWidth = PixelWidth * magnification;
+            var surfaceHeight = PixelHeight * magnification;
+
+            //DFS 
+            //if (x < 0 || x >= surfaceWidth || y < 0 || y >= surfaceHeight)
+            //    return;
+
+            //if (!Equals(_surface.GetColor(x * Magnification, y * Magnification), targetColor))
+            //    return;
+
+            //if (Equals(_surface.GetColor(x * Magnification, y * Magnification), targetColor))
+            //{
+            //    _surface.SetColor(
+            //   x, y, replacementColor);
+
+            //    floodfill(x + 1, y, targetColor, replacementColor);
+            //    floodfill(x, y + 1, targetColor, replacementColor);
+            //    floodfill(x - 1, y, targetColor, replacementColor);
+            //    floodfill(x, y - 1, targetColor, replacementColor);
+            //}
+
+            //BFS
+            Stack<Point> pixels = new Stack<Point>();
+            pixels.Push(new Point(x, y));
+
+            if (Equals(replacementColor, targetColor))
+                return;
+
+            while (pixels.Count() > 0)
+            {
+                Point pt = pixels.Pop();
+                if (pt.X > 0 && pt.X < surfaceWidth && pt.Y > 0 && pt.Y < surfaceHeight)
+                {
+                    if (Equals(_surface.GetColor((int)pt.X * Magnification, (int)pt.Y * Magnification), targetColor))
+                    {
+                        _surface.SetColor(
+                         (int)pt.X, (int)pt.Y, replacementColor);
+
+                        pixels.Push(new Point(pt.X - 1, pt.Y));
+                        pixels.Push(new Point(pt.X + 1, pt.Y));
+                        pixels.Push(new Point(pt.X, pt.Y - 1));
+                        pixels.Push(new Point(pt.X, pt.Y + 1));
+                    }
+                }
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -95,9 +151,12 @@ namespace PixelCreator
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
-            CaptureMouse();
-            Draw();
+            if (MainWindow.selectedTool == Tools.Tool.Pencil)
+            {
+                base.OnMouseLeftButtonDown(e);
+                CaptureMouse();
+                Draw();
+            }
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -130,7 +189,6 @@ namespace PixelCreator
             var w = PixelWidth;
             var h = PixelHeight;
             var m = Magnification;
-            var d = -0.5d;
             var pen = new Pen();
             pen.Freeze();
             int flip = 0;
@@ -181,15 +239,18 @@ namespace PixelCreator
 
                 dc.DrawImage(_bitmap, new Rect(0, 0, width, height));
             }
+
+            internal void SetColor(int x, int y, Color color)
+            {
+                _bitmap.SetPixel(x, y, color);
+            }
+
             internal Color GetColor(int x, int y)
             {
                 if (x < 0 || y < 0)
                     return Colors.Transparent;
-                return _bitmap.GetPixel(x / _owner.Magnification, y / _owner.Magnification);
-            }
-            internal void SetColor(int x, int y, Color color)
-            {
-                _bitmap.SetPixel(x, y, color);
+
+                return _bitmap.GetPixel((int)(x / _owner.Magnification) , (int)(y / _owner.Magnification));
             }
 
             public WriteableBitmap GetMap()
