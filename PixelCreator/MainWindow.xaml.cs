@@ -27,11 +27,6 @@ namespace PixelCreator
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private enum Tool
-        {
-            Pencil, FillBucket, ColorPicker, Hand, ZoomIn, ZoomOut
-        }
-
         PixelEditor pixelEditor;
         BindingList<FrameGIF> frameCollection = new BindingList<FrameGIF>();
         Color _brushColor_Primary { get; set; }
@@ -39,7 +34,8 @@ namespace PixelCreator
         Brush _BrushColor_Primary { get; set; }
         Brush _BrushColor_Secondary { get; set; }
         List<Color> _recentColors = new List<Color>();
-        Tool selectedTool;
+
+        internal static Tools.Tool selectedTool;
 
         public int _gifPanelHeightFrom { get; set; }
         public int _gifPanelHeightTo { get; set; }
@@ -133,18 +129,22 @@ namespace PixelCreator
         private void PencilTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Pen;
-            selectedTool = Tool.Pencil;
+            selectedTool = Tools.Tool.Pencil;
             //pixelEditor.IsEnabled = !pixelEditor.IsEnabled;
+        }
+        private void FillBucketTool_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.FillBucket;
         }
         private void ZoomInTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Cross;
-            selectedTool = Tool.ZoomIn;
+            selectedTool = Tools.Tool.ZoomIn;
         }
         private void HandTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Hand;
-            selectedTool = Tool.Hand;
+            selectedTool = Tools.Tool.Hand;
         }
         private void ZoomIn()
         {
@@ -194,7 +194,7 @@ namespace PixelCreator
         { 
             switch (selectedTool)
             {
-                case Tool.Hand:
+                case Tools.Tool.Hand:
                     {
                         var mousePos = e.GetPosition(scrollViewer);
                         if (mousePos.X <= scrollViewer.ViewportWidth && mousePos.Y <
@@ -206,12 +206,20 @@ namespace PixelCreator
                         }
                     }
                     break;
-                case Tool.ZoomIn:
+                case Tools.Tool.FillBucket:
+                    {
+                        var p = (Point)pixelEditor.GetMousePosition(e);
+                        Color targetColor = pixelEditor.GetPixelColor((int)p.X, (int)p.Y);
+                        var magnification = pixelEditor.Magnification;
+                        pixelEditor.floodfill((int)(p.X / magnification), (int)(p.Y / magnification), targetColor, _brushColor_Primary);
+                    }
+                    break;
+                case Tools.Tool.ZoomIn:
                     {
                         ZoomIn();
                     }
                     break;
-                case Tool.ZoomOut:
+                case Tools.Tool.ZoomOut:
                     {
                         ZoomOut();
                     }

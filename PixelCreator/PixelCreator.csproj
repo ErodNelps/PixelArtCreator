@@ -74,6 +74,7 @@
     </ApplicationDefinition>
     <Compile Include="FrameGIF.cs" />
     <Compile Include="PixelEditor.cs" />
+    <Compile Include="Tools.cs" />
     <Compile Include="Utils\RelayCommand.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
