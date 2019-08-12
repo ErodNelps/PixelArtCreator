@@ -128,7 +128,7 @@
                 </Fluent:RibbonTabItem>
             </Fluent:Ribbon>
             <!--Frame Manager-->
-            <DockPanel Name="FramePanel" DockPanel.Dock="Bottom" Height="170"
+            <DockPanel Name="FramePanel" DockPanel.Dock="Bottom" Height="180"
                        HorizontalAlignment="Stretch">
 
                 <StackPanel x:Name="frameStackPanel" DockPanel.Dock="Top" Height="35" Background="Gray" 
@@ -137,7 +137,7 @@
                         <EventTrigger RoutedEvent="StackPanel.MouseDown">
                             <BeginStoryboard>
                                 <Storyboard x:Name="hideFramePanel">
-                                    <DoubleAnimation Storyboard.TargetName="FramePanel" Storyboard.TargetProperty="Height" From="{Binding _framePanelHeightFrom}" To="{Binding _framePanelHeightTo}" Duration="00:00:0.5">
+                                    <DoubleAnimation Storyboard.TargetName="FramePanel" Storyboard.TargetProperty="Height" From="{Binding _gifPanelHeightFrom}" To="{Binding _gifPanelHeightTo}" Duration="00:00:0.5">
                                         <DoubleAnimation.EasingFunction>
                                             <PowerEase EasingMode="{Binding easeMode}"></PowerEase>
                                         </DoubleAnimation.EasingFunction>
@@ -146,22 +146,41 @@
                             </BeginStoryboard>
                         </EventTrigger>
                     </StackPanel.Triggers>
-                    <Label Content="GIF MAKING PANEL" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"></Label>
-                    <Button BorderBrush="Transparent" Background="Transparent" >
-                        <Image Source="/Icons/move-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                    </Button>
-                    <Button BorderBrush="Transparent" Background="Transparent" >
-                        <Image Source="/Icons/move-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                    </Button>
+                    <Label Content="GIF MAKING PANEL" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="White"></Label>
                     <Button BorderBrush="Transparent" Background="Transparent" Click="AddFrame_Clicked">
                         <Image Source="/Icons/add-frame.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
                     <Button BorderBrush="Transparent" Background="Transparent">
-                        <Image Source="/Icons/delete.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                        <Image Source="/Icons/copy.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
                 </StackPanel>
+                <DockPanel DockPanel.Dock="Top" Height="30" Background="DarkGray">
+                    <ComboBox Background="Gray" x:Name="AllFrameSpeed_Combobox" DockPanel.Dock="Right" SelectedValuePath="Content" SelectedValue="Frame Speed" Width="100"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" SelectionChanged="AllFrameSpeed_SelectionChanged">
+                        <ComboBoxItem Content="Frame Speed"></ComboBoxItem>
+                        <ComboBoxItem Content="50ms"></ComboBoxItem>
+                        <ComboBoxItem Content="100ms"></ComboBoxItem>
+                        <ComboBoxItem Content="250ms"></ComboBoxItem>
+                        <ComboBoxItem Content="500ms"></ComboBoxItem>
+                        <ComboBoxItem Content="1000ms"></ComboBoxItem>
+                        <ComboBoxItem Content="2000ms"></ComboBoxItem>
+                        <ComboBoxItem Content="5000ms"></ComboBoxItem>
+                    </ComboBox>
+                    <Label DockPanel.Dock="Right" Content="ALL FRAME:" Foreground="White"></Label>
+                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" >
+                        <Image Source="/Icons/move-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" >
+                        <Image Source="/Icons/move-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button BorderBrush="Transparent" Background="Transparent">
+                        <Image Source="/Icons/delete.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Grid/>
+
+                </DockPanel>
                 <!--Frame Container-->
-                <ListView x:Name="FrameContainer" Background="DarkGray">
+                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -171,9 +190,17 @@
                         <DataTemplate>
                             <StackPanel Background="White">
                                 <Border BorderBrush="Black" BorderThickness="1">
-                                    <Image Width="100" Height="100" Source="{Binding bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                                    <Image Width="80" Height="80" Source="{Binding bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                 </Border>
-                                <Label Content="{Binding speed}" Height="30" HorizontalAlignment="Center"></Label>
+                                <ComboBox SelectedValuePath="Content" SelectedValue="{Binding speed}">
+                                    <ComboBoxItem Content="50ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="100ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="250ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="500ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="1000ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="2000ms"></ComboBoxItem>
+                                    <ComboBoxItem Content="5000ms"></ComboBoxItem>
+                                </ComboBox>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -195,7 +222,7 @@
                   Loaded="scrollViewer_Loaded"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
-                <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="500" Width="500" x:Name="pixelGrid" MouseEnter="pixelGridMouseEnter">
+                <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="500" Width="500" x:Name="pixelGrid" MouseEnter="pixelGridMouseEnter" MouseLeave="pixelGridMouseLeave">
 
                 </Viewbox>
 

@@ -23,6 +23,15 @@ namespace PixelCreator
     {
         public WriteableBitmap bitmap { get; set; }
         public BitmapImage image { get; set; }
-        public int speed { get; set; }
+        public string speed { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void RaisePropertyChanged([CallerMemberName]string propertyName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }

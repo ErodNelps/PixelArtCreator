@@ -27,11 +27,11 @@ namespace PixelCreator
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private enum Tool
+        public enum Tool
         {
             Pencil, FillBucket, ColorPicker, Hand, ZoomIn, ZoomOut
         }
-
+        internal static Tool selectedTool;
         PixelEditor pixelEditor;
         BindingList<FrameGIF> frameCollection = new BindingList<FrameGIF>();
         Color _brushColor_Primary { get; set; }
@@ -39,17 +39,20 @@ namespace PixelCreator
         Brush _BrushColor_Primary { get; set; }
         Brush _BrushColor_Secondary { get; set; }
         List<Color> _recentColors = new List<Color>();
-        Tool selectedTool;
+        
 
         public int _gifPanelHeightFrom { get; set; }
         public int _gifPanelHeightTo { get; set; }
         public int mousePos_X { get; set; }
         public int mousePos_Y { get; set; }
-
+        bool isEnterGrid = false;
         private void pixelGridMouseEnter(object sender, MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-            pixelEditor.GetMousePosition(e);
+            isEnterGrid = true;
+        }
+        private void pixelGridMouseLeave(object sender, MouseEventArgs e)
+        {
+            isEnterGrid = false;
         }
 
         public MainWindow()
@@ -176,6 +179,12 @@ namespace PixelCreator
 
         void OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (isEnterGrid)
+            {
+                base.OnMouseMove(e);
+                var p = pixelEditor.GetMousePosition(e);
+            }
+
             if (lastDragPoint.HasValue)
             {
                 Point posNow = e.GetPosition(scrollViewer);
@@ -305,18 +314,18 @@ namespace PixelCreator
         {
             if (flag == true)
             {
-                _gifPanelHeightFrom = 170;
+                _gifPanelHeightFrom = 180;
                 _gifPanelHeightTo = 35;
-                RaisePropertyChanged("_framePanelHeightFrom");
-                RaisePropertyChanged("_framePanelHeightTo");
+                RaisePropertyChanged("_gifPanelHeightFrom");
+                RaisePropertyChanged("_gifPanelHeightTo");
                 easeMode.EasingMode = EasingMode.EaseIn;
             }
             else if (flag == false)
             {
                 _gifPanelHeightFrom = 35;
-                _gifPanelHeightTo = 170;
-                RaisePropertyChanged("_framePanelHeightFrom");
-                RaisePropertyChanged("_framePanelHeightTo");
+                _gifPanelHeightTo = 180;
+                RaisePropertyChanged("_gifPanelHeightFrom");
+                RaisePropertyChanged("_gifPanelHeightTo");
                 easeMode.EasingMode = EasingMode.EaseOut;
             }
             flag = !flag;
@@ -328,7 +337,7 @@ namespace PixelCreator
             string fileName = "file1.png";
 
             CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.GetWriteableBitmap(), speed = 100 });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.GetWriteableBitmap(), speed = "100ms" });
         }
 
         void CreateThumbnail(string filename, BitmapSource image5)
@@ -468,6 +477,16 @@ namespace PixelCreator
                         return false; // To disable the 6th item
                     }
                 );
+            }
+        }
+
+        private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine($"{AllFrameSpeed_Combobox.SelectedItem.ToString()}");
+            foreach(var frame in frameCollection)
+            {
+                frame.speed = AllFrameSpeed_Combobox.SelectedValue.ToString();
+                frame.RaisePropertyChanged("speed");
             }
         }
         /* #endregion */

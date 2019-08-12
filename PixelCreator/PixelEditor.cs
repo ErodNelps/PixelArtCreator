@@ -77,11 +77,12 @@ namespace PixelCreator
             //_surface.InvalidateVisual();
         }
 
-        public Point? GetMousePosition(MouseEventArgs e)
+        public Point GetMousePosition(MouseEventArgs e)
         {
             base.OnMouseMove(e);
             var p = e.GetPosition(this);
             Debug.WriteLine($"{(int)(p.X + 1) / 10} - {(int)(p.Y + 1) / 10}");
+            Debug.WriteLine($"{_surface.GetColor((int)p.X, (int)p.Y)}");
             return p;
         }
 
@@ -180,7 +181,12 @@ namespace PixelCreator
 
                 dc.DrawImage(_bitmap, new Rect(0, 0, width, height));
             }
-
+            internal Color GetColor(int x, int y)
+            {
+                if (x < 0 || y < 0)
+                    return Colors.Transparent;
+                return _bitmap.GetPixel(x / _owner.Magnification, y / _owner.Magnification);
+            }
             internal void SetColor(int x, int y, Color color)
             {
                 _bitmap.SetPixel(x, y, color);

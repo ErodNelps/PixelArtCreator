@@ -149,5 +149,8 @@
     <Resource Include="Icons\move-right.png" />
     <Resource Include="Icons\open.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\copy.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
