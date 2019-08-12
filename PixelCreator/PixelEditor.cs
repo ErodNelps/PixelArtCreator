@@ -224,7 +224,7 @@ namespace PixelCreator
             public Surface(PixelEditor owner)
             {
                 _owner = owner;
-                _bitmap = BitmapFactory.New(owner.PixelWidth*owner.Magnification, owner.PixelHeight*owner.Magnification);
+                _bitmap = BitmapFactory.New(owner.PixelWidth, owner.PixelHeight);
                 _bitmap.Clear(Colors.Transparent);
                 
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
