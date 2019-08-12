@@ -141,6 +141,10 @@ namespace PixelCreator
         {
             selectedTool = Tools.Tool.FillBucket;
         }
+        private void ColorPickerTool_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.ColorPicker;
+        }
         private void ZoomInTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Cross;
@@ -223,6 +227,11 @@ namespace PixelCreator
                         Color targetColor = pixelEditor.GetPixelColor((int)p.X, (int)p.Y);
                         var magnification = pixelEditor.Magnification;
                         pixelEditor.floodfill((int)(p.X / magnification), (int)(p.Y / magnification), targetColor, _brushColor_Primary);
+                    }
+                    break;
+                case Tools.Tool.ColorPicker:
+                    {
+
                     }
                     break;
                 case Tools.Tool.ZoomIn:
@@ -499,6 +508,7 @@ namespace PixelCreator
                 frame.RaisePropertyChanged("speed");
             }
         }
+
         /* #endregion */
     }
 }

@@ -64,7 +64,7 @@
                                 <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="FillBucketTool_Selected">
                                     <Image Source="/Icons/paint-bucket.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="ColorPickerTool_Selected">
                                     <Image Source="/Icons/color-picker.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
                                 <RadioButton x:Name="handTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="HandTool_Selected">

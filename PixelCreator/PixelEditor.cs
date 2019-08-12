@@ -126,7 +126,7 @@ namespace PixelCreator
             while (pixels.Count() > 0)
             {
                 Point pt = pixels.Pop();
-                if (pt.X > 0 && pt.X < surfaceWidth && pt.Y > 0 && pt.Y < surfaceHeight)
+                if (pt.X >= 0 && pt.X <= surfaceWidth && pt.Y >= 0 && pt.Y <= surfaceHeight)
                 {
                     if (Equals(_surface.GetColor((int)pt.X * Magnification, (int)pt.Y * Magnification), targetColor))
                     {
@@ -224,7 +224,7 @@ namespace PixelCreator
             public Surface(PixelEditor owner)
             {
                 _owner = owner;
-                _bitmap = BitmapFactory.New(owner.PixelWidth*owner.Magnification, owner.PixelHeight*owner.Magnification);
+                _bitmap = BitmapFactory.New(owner.PixelWidth, owner.PixelHeight);
                 _bitmap.Clear(Colors.Transparent);
                 
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
