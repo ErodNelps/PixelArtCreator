@@ -234,8 +234,8 @@ namespace PixelCreator
             {
                 base.OnRender(dc);
                 var magnification = _owner.Magnification;
-                var width = _bitmap.PixelWidth * magnification;
-                var height = _bitmap.PixelHeight * magnification;
+                var width = _bitmap.PixelWidth*magnification;
+                var height = _bitmap.PixelHeight*magnification;
 
                 dc.DrawImage(_bitmap, new Rect(0, 0, width, height));
             }
