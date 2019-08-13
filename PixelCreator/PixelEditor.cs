@@ -77,6 +77,22 @@ namespace PixelCreator
             //_surface.InvalidateVisual();
         }
 
+        private void Erase()
+        {
+            var p = Mouse.GetPosition(_surface);
+            var magnification = Magnification;
+            var surfaceWidth = PixelWidth * magnification;
+            var surfaceHeight = PixelHeight * magnification;
+
+            if (p.X < 0 || p.X >= surfaceWidth || p.Y < 0 || p.Y >= surfaceHeight)
+                return;
+
+            _surface.SetColor(
+                (int)(p.X / magnification),
+                (int)(p.Y / magnification),
+                Colors.Transparent);
+        }
+
         public Point GetMousePosition(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -144,9 +160,19 @@ namespace PixelCreator
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            base.OnMouseMove(e);
-            if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
-                Draw();
+            if (MainWindow.selectedTool == Tools.Tool.Pencil)
+            {
+                base.OnMouseMove(e);
+                if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                    Draw();
+            }
+            else if (MainWindow.selectedTool == Tools.Tool.Eraser)
+            {
+                base.OnMouseMove(e);
+                if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                    Erase();
+            }
+            
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
@@ -156,6 +182,12 @@ namespace PixelCreator
                 base.OnMouseLeftButtonDown(e);
                 CaptureMouse();
                 Draw();
+            }
+            else if (MainWindow.selectedTool == Tools.Tool.Eraser)
+            {
+                base.OnMouseLeftButtonDown(e);
+                CaptureMouse();
+                Erase();
             }
         }
 

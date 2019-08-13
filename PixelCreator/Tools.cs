@@ -10,7 +10,7 @@ namespace PixelCreator
     {
         public enum Tool
         {
-            Pencil, FillBucket, ColorPicker, Hand, ZoomIn, ZoomOut
+            Pencil, Eraser, FillBucket, ColorPicker, Hand, ZoomIn, ZoomOut
         }
     }
 }

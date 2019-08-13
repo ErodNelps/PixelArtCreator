@@ -162,5 +162,8 @@
     <Resource Include="Icons\delete.png" />
     <Resource Include="Icons\preview.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\rubber.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
