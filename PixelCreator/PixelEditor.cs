@@ -226,7 +226,6 @@ namespace PixelCreator
                 _owner = owner;
                 _bitmap = BitmapFactory.New(owner.PixelWidth, owner.PixelHeight);
                 _bitmap.Clear(Colors.Transparent);
-                
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
             }
             

@@ -339,6 +339,7 @@ namespace PixelCreator
             }
             flag = !flag;
         }
+
         private void AddFrame_Clicked(object sender, RoutedEventArgs e)
         {
             System.Drawing.Bitmap bitmap = pixelEditor.ToBitmap();
@@ -347,6 +348,31 @@ namespace PixelCreator
 
             CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
             frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), speed = "100ms" });
+        }
+
+        private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            Debug.WriteLine($"{AllFrameSpeed_Combobox.SelectedItem.ToString()}");
+            foreach (var frame in frameCollection)
+            {
+                frame.speed = AllFrameSpeed_Combobox.SelectedValue.ToString();
+                frame.RaisePropertyChanged("speed");
+            }
+        }
+
+        private void PreviewGIFButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            int framesCount = frameCollection.Count();
+
+            using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
+            {
+                var img = pixelEditor.ToBitmap();
+                for (int i = 0; i < framesCount; i++)
+                {
+                    gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].speed.Replace("ms", "")), quality: GifQuality.Bit8);
+                }
+            }
         }
 
         void CreateThumbnail(string filename, BitmapSource image5)
@@ -486,32 +512,6 @@ namespace PixelCreator
                         return false; // To disable the 6th item
                     }
                 );
-            }
-        }
-
-        private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            
-            Debug.WriteLine($"{AllFrameSpeed_Combobox.SelectedItem.ToString()}");
-            foreach(var frame in frameCollection)
-            {
-                frame.speed = AllFrameSpeed_Combobox.SelectedValue.ToString();
-                frame.RaisePropertyChanged("speed");
-            }
-        }
-
-        private void PreviewGIFButton_Clicked(object sender, RoutedEventArgs e)
-        {
-            int framesCount = frameCollection.Count();
-            
-            using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
-            {
-                var img = pixelEditor.ToBitmap();
-                for(int i=0; i<framesCount; i++)
-                {
-                    gif.AddFrame(frameCollection[i].bitmap, delay: 100, quality: GifQuality.Bit8);
-
-                }
             }
         }
         /* #endregion */
