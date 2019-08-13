@@ -152,6 +152,10 @@ namespace PixelCreator
         {
             selectedTool = Tools.Tool.ColorPicker;
         }
+        private void EraserTool_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.Eraser;
+        }
         private void ZoomInTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Cross;
@@ -238,7 +242,17 @@ namespace PixelCreator
                     break;
                 case Tools.Tool.ColorPicker:
                     {
-
+                        var p = (Point)pixelEditor.GetMousePosition(e);
+                        Color pickedColor = pixelEditor.GetPixelColor((int)p.X, (int)p.Y);
+                        if (primaryColor.IsChecked == true)
+                        {
+                            _brushColor_Primary = pickedColor;
+                        }
+                        else if (secondColor.IsChecked == true)
+                        {
+                            _brushColor_Primary = pickedColor;
+                        }
+                       
                     }
                     break;
                 case Tools.Tool.ZoomIn:
@@ -605,7 +619,6 @@ namespace PixelCreator
                 return (T)binaryFormatter.Deserialize(stream);
             }
         }
-
         private void OpenButton_Clicked(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
