@@ -19,7 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using RadialMenuDemo.Utils;
-
+using AnimatedGif;
 namespace PixelCreator
 {
     /// <summary>
@@ -55,10 +55,9 @@ namespace PixelCreator
 
         public MainWindow()
         {
+            pixelEditor = new PixelEditor(128, 128);
             InitializeComponent();
             DataContext = this;
-
-            pixelEditor = new PixelEditor(128,128);
             //ParentGrid.Children.Add(pixelEditor);
             pixelGrid.Child = pixelEditor;
             //pixelGrid.Children.Add(pixelEditor);
@@ -185,7 +184,7 @@ namespace PixelCreator
 
         void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (isEnterGrid)
+            if (isEnterGrid && selectedTool == Tools.Tool.Pencil)
             {
                 base.OnMouseMove(e);
                 var p = pixelEditor.GetMousePosition(e);
@@ -356,7 +355,7 @@ namespace PixelCreator
             string fileName = "file1.png";
 
             CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.GetWriteableBitmap(), speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), speed = "100ms" });
         }
 
         void CreateThumbnail(string filename, BitmapSource image5)
@@ -501,6 +500,7 @@ namespace PixelCreator
 
         private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            
             Debug.WriteLine($"{AllFrameSpeed_Combobox.SelectedItem.ToString()}");
             foreach(var frame in frameCollection)
             {
@@ -509,6 +509,21 @@ namespace PixelCreator
             }
         }
 
+
+        private void PreviewGIFButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            int framesCount = frameCollection.Count();
+            
+            using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
+            {
+                var img = pixelEditor.ToBitmap();
+                for(int i=0; i<framesCount; i++)
+                {
+                    gif.AddFrame(frameCollection[i].bitmap, delay: 100, quality: GifQuality.Bit8);
+
+                }
+            }
+        }
         /* #endregion */
     }
 }

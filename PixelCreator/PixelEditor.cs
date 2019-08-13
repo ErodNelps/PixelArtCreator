@@ -95,8 +95,8 @@ namespace PixelCreator
         public void floodfill(int x, int y, Color targetColor, Color replacementColor)
         {
             var magnification = Magnification;
-            var surfaceWidth = PixelWidth * magnification;
-            var surfaceHeight = PixelHeight * magnification;
+            //var surfaceWidth = PixelWidth * magnification;
+            //var surfaceHeight = PixelHeight * magnification;
 
             //DFS 
             //if (x < 0 || x >= surfaceWidth || y < 0 || y >= surfaceHeight)
@@ -126,7 +126,7 @@ namespace PixelCreator
             while (pixels.Count() > 0)
             {
                 Point pt = pixels.Pop();
-                if (pt.X >= 0 && pt.X <= surfaceWidth && pt.Y >= 0 && pt.Y <= surfaceHeight)
+                if (pt.X >= 0 && pt.X < PixelWidth && pt.Y >= 0 && pt.Y < PixelHeight)
                 {
                     if (Equals(_surface.GetColor((int)pt.X * Magnification, (int)pt.Y * Magnification), targetColor))
                     {
@@ -234,8 +234,8 @@ namespace PixelCreator
             {
                 base.OnRender(dc);
                 var magnification = _owner.Magnification;
-                var width = _bitmap.PixelWidth * magnification;
-                var height = _bitmap.PixelHeight * magnification;
+                var width = _bitmap.PixelWidth*magnification;
+                var height = _bitmap.PixelHeight*magnification;
 
                 dc.DrawImage(_bitmap, new Rect(0, 0, width, height));
             }
