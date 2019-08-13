@@ -20,6 +20,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using RadialMenuDemo.Utils;
 using AnimatedGif;
+using Microsoft.Win32;
+
 namespace PixelCreator
 {
     /// <summary>
@@ -58,6 +60,7 @@ namespace PixelCreator
             pixelEditor = new PixelEditor(128, 128);
             InitializeComponent();
             DataContext = this;
+            this.Closing += MainWindow_Closing;
             //ParentGrid.Children.Add(pixelEditor);
             pixelGrid.Child = pixelEditor;
             //pixelGrid.Children.Add(pixelEditor);
@@ -65,6 +68,11 @@ namespace PixelCreator
             _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
             
             _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
+        }
+
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            TriggerSaveMechanism();
         }
 
         private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -140,6 +148,10 @@ namespace PixelCreator
         {
             selectedTool = Tools.Tool.FillBucket;
         }
+        private void ColorPickerTool_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.ColorPicker;
+        }
         private void ZoomInTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Cross;
@@ -168,7 +180,7 @@ namespace PixelCreator
         Point? lastMousePositionOnTarget;
         Point? lastDragPoint;
 
-        private void scrollViewer_Loaded(object sender, RoutedEventArgs e)
+        void scrollViewer_Loaded(object sender, RoutedEventArgs e)
         {
             scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
             scrollViewer.MouseLeftButtonUp += OnMouseLeftButtonUp;
@@ -222,6 +234,11 @@ namespace PixelCreator
                         Color targetColor = pixelEditor.GetPixelColor((int)p.X, (int)p.Y);
                         var magnification = pixelEditor.Magnification;
                         pixelEditor.floodfill((int)(p.X / magnification), (int)(p.Y / magnification), targetColor, _brushColor_Primary);
+                    }
+                    break;
+                case Tools.Tool.ColorPicker:
+                    {
+
                     }
                     break;
                 case Tools.Tool.ZoomIn:
@@ -347,16 +364,17 @@ namespace PixelCreator
             string fileName = "file1.png";
 
             CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmap = pixelEditor.GetWriteableBitmap(), speed = "100ms" });
         }
 
         private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var frameSpeedcmb = sender as ComboBox;
+            Debug.WriteLine($"{frameSpeedcmb.SelectedValue.ToString()}");
 
-            Debug.WriteLine($"{AllFrameSpeed_Combobox.SelectedItem.ToString()}");
             foreach (var frame in frameCollection)
             {
-                frame.speed = AllFrameSpeed_Combobox.SelectedValue.ToString();
+                frame.speed = frameSpeedcmb.SelectedValue.ToString();
                 frame.RaisePropertyChanged("speed");
             }
         }
@@ -367,7 +385,6 @@ namespace PixelCreator
 
             using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
             {
-                var img = pixelEditor.ToBitmap();
                 for (int i = 0; i < framesCount; i++)
                 {
                     gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].speed.Replace("ms", "")), quality: GifQuality.Bit8);
@@ -513,6 +530,102 @@ namespace PixelCreator
                     }
                 );
             }
+        }
+        string currentFileName = "Untitled.pixc";
+        string currentSaveLoc = "";
+        bool isSavedToFile = false;
+        private void NewButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            TriggerSaveMechanism();
+        }
+        void TriggerSaveMechanism()
+        {
+            if (pixelEditor.HasUnsavedChanges())
+            {
+                MessageBoxResult result = MessageBox.Show("Do you want to save changes to " + currentFileName, "Pixel Creator", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    if(currentSaveLoc == null)
+                    {
+                        MessageBox.Show("Null");
+                    }
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+            }
+            pixelEditor.ClearMap();
+            frameCollection.Clear();
+
+        }
+        private void SaveButtonClicked(object sender, RoutedEventArgs e)
+        {
+            if (!isSavedToFile)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "PixelCreator (*.pixc)| *.pixc";
+                saveFileDialog.DefaultExt = "*.pixc";
+                saveFileDialog.OverwritePrompt = true;
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    currentSaveLoc = saveFileDialog.FileName;
+                }
+                else
+                    return;
+            }
+
+            if(currentSaveLoc != String.Empty)
+            {
+                SaveToFile(currentSaveLoc);
+                isSavedToFile = true;
+                pixelEditor.ChangesIsSaved();
+            }
+        }
+
+        void SaveToFile(string path)
+        {
+            WriteToBinaryFile<BindingList<FrameGIF>>(path, frameCollection, false);
+        }
+
+        public static void WriteToBinaryFile<T>(string filePath, T objectToWrite, bool append = false)
+        {
+            using (Stream stream = File.Open(filePath, append ? FileMode.Append : FileMode.Create))
+            {
+                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                binaryFormatter.Serialize(stream, objectToWrite);
+            }
+        }
+
+        public static T ReadFromBinaryFile<T>(string filePath)
+        {
+            using (Stream stream = File.Open(filePath, FileMode.Open))
+            {
+                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                return (T)binaryFormatter.Deserialize(stream);
+            }
+        }
+
+        private void OpenButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if(openFileDialog.ShowDialog() == true)
+            {
+                frameCollection = ReadFromBinaryFile<BindingList<FrameGIF>>(openFileDialog.FileName);
+                pixelEditor.SetWriteableBitmap(frameCollection[0].wbitmap);
+            }
+        }
+
+        private void Frame_Selected(object sender, RoutedEventArgs e)
+        {
+            if (!FrameContainer.HasItems)
+                return;
+            var frame = FrameContainer.SelectedItem as FrameGIF;
+            if (frame == null)
+                return;
+            pixelEditor.SetWriteableBitmap(frame.wbitmap);
+            pixelGrid.Child = null;
+            pixelGrid.Child = pixelEditor;
         }
         /* #endregion */
     }

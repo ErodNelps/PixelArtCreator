@@ -19,9 +19,9 @@
                 <Fluent:Ribbon.Menu>
                     <Fluent:Backstage>
                         <Fluent:BackstageTabControl>
-                            <Fluent:BackstageTabItem Header="New" />
-                            <Fluent:BackstageTabItem Header="Export" />
-                            <Fluent:Button Header="Blue" />
+                            <Fluent:Button Header="New" Click="NewButton_Clicked" />
+                            <Fluent:Button Header="Save" Click="SaveButtonClicked"/>
+                            <Fluent:Button Header="Open" Click="OpenButton_Clicked"/>
                         </Fluent:BackstageTabControl>
                     </Fluent:Backstage>
                 </Fluent:Ribbon.Menu>
@@ -64,7 +64,7 @@
                                 <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="FillBucketTool_Selected">
                                     <Image Source="/Icons/paint-bucket.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="ColorPickerTool_Selected">
                                     <Image Source="/Icons/color-picker.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
                                 <RadioButton x:Name="handTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="HandTool_Selected">
@@ -120,7 +120,7 @@
                                 <Rectangle Width="25" Height="25" Fill="{Binding _BrushColor_Secondary}" Stroke="Black"></Rectangle>
                             </RadioButton>
                             <Fluent:DropDownButton Header="Color 1" Height="50">
-                                <Fluent:ColorGallery x:Name="colorGalleryStandard" SelectedColor="Black" IsNoColorButtonVisible="False" SelectedColorChanged="ColorGallery_SelectedColorChanged">
+                                <Fluent:ColorGallery x:Name="colorGalleryStandard" SelectedColor="Black" IsNoColorButtonVisible="True" SelectedColorChanged="ColorGallery_SelectedColorChanged">
                                 </Fluent:ColorGallery>
                             </Fluent:DropDownButton>
                         </StackPanel>
@@ -193,7 +193,7 @@
 
                 </DockPanel>
                 <!--Frame Container-->
-                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray">
+                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray" SelectionChanged="Frame_Selected">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -203,7 +203,7 @@
                         <DataTemplate>
                             <StackPanel Background="Transparent">
                                 <Border BorderBrush="Black" BorderThickness="1" Background="White">
-                                    <Image Width="80" Height="80" Source="{Binding bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                                    <Image Width="80" Height="80" Source="{Binding wbitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                 </Border>
                                 <ComboBox Width="80" SelectedValuePath="Content" SelectedValue="{Binding speed}">
                                     <ComboBoxItem Content="50ms"></ComboBoxItem>

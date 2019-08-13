@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -41,7 +42,7 @@ namespace PixelCreator
         {
             PixelWidth = pixelWidth;
             PixelHeight = pixelHeight;
-            
+
             _gridTransparent = CreateGridLines();
             _surface = new Surface(this);
 
@@ -51,13 +52,13 @@ namespace PixelCreator
         }
 
         protected override int VisualChildrenCount => 2;
-        
+
         //Setting z-order of visual children
         protected override Visual GetVisualChild(int index)
         {
             return index == 0 ? _gridTransparent : _surface;
         }
-        
+
         //Draw pixel
         private void Draw()
         {
@@ -77,6 +78,17 @@ namespace PixelCreator
             //_surface.InvalidateVisual();
         }
 
+        public void ClearMap()
+        {
+            _surface.Clear();
+        }
+        public bool HasUnsavedChanges()
+        {
+            return _surface.IsDirty();
+        }
+        public void ChangesIsSaved() {
+            _surface.MapIsSaved();
+        }
         public Point GetMousePosition(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -95,8 +107,8 @@ namespace PixelCreator
         public void floodfill(int x, int y, Color targetColor, Color replacementColor)
         {
             var magnification = Magnification;
-            var surfaceWidth = PixelWidth * magnification;
-            var surfaceHeight = PixelHeight * magnification;
+            //var surfaceWidth = PixelWidth * magnification;
+            //var surfaceHeight = PixelHeight * magnification;
 
             //DFS 
             //if (x < 0 || x >= surfaceWidth || y < 0 || y >= surfaceHeight)
@@ -126,7 +138,7 @@ namespace PixelCreator
             while (pixels.Count() > 0)
             {
                 Point pt = pixels.Pop();
-                if (pt.X > 0 && pt.X < surfaceWidth && pt.Y > 0 && pt.Y < surfaceHeight)
+                if (pt.X >= 0 && pt.X < PixelWidth && pt.Y >= 0 && pt.Y < PixelHeight)
                 {
                     if (Equals(_surface.GetColor((int)pt.X * Magnification, (int)pt.Y * Magnification), targetColor))
                     {
@@ -206,7 +218,7 @@ namespace PixelCreator
             dc.Close();
             return dv;
         }
-
+        
         public System.Drawing.Bitmap ToBitmap()
         {
             System.Drawing.Bitmap bitmap = _surface.BitmapFromSource();
@@ -216,34 +228,84 @@ namespace PixelCreator
         {
             return _surface.GetMap();
         }
+        public void SetWriteableBitmap(WriteableBitmap bitmap)
+        {
+            _surface.SetMap(bitmap);
+        }
         private sealed class Surface : FrameworkElement
         {
             private readonly PixelEditor _owner;
             private WriteableBitmap _bitmap;
-
+            private bool isDirty { get; set; }
             public Surface(PixelEditor owner)
             {
                 _owner = owner;
                 _bitmap = BitmapFactory.New(owner.PixelWidth, owner.PixelHeight);
                 _bitmap.Clear(Colors.Transparent);
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
+                _bitmap.Changed += OnBitmapChanged;
             }
-            
+            public void SetMap(WriteableBitmap bitmap)
+            {
+                _bitmap = bitmap;
+            }
+            /// <summary>
+            ///     Recognise unsave changes on bitmap
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            void OnBitmapChanged(object sender, EventArgs e)
+            {
+                isDirty = true;
+            }
+            /// <summary>
+            ///     Notify that unsave changes are saved
+            /// </summary>
+            public void MapIsSaved() {
+                isDirty = false;
+            }
+            /// <summary>
+            ///     Get boolean value check if there is any unsave changes
+            /// </summary>
+            /// <returns></returns>
+            public bool IsDirty(){
+                return isDirty;
+            }
+            /// <summary>
+            ///     Render magnified version of Writeablebitmap
+            /// </summary>
+            /// <param name="dc"></param>
             protected override void OnRender(DrawingContext dc)
             {
                 base.OnRender(dc);
                 var magnification = _owner.Magnification;
                 var width = _bitmap.PixelWidth*magnification;
                 var height = _bitmap.PixelHeight*magnification;
-
                 dc.DrawImage(_bitmap, new Rect(0, 0, width, height));
             }
-
+            /// <summary>
+            /// Clear Writablebitmap with Colors.Transparent
+            /// </summary>
+            public void Clear()
+            {
+                _bitmap.Clear(Colors.Transparent);
+            }
+            /// <summary>
+            /// Set color at pixel (x, y)
+            /// </summary>
+            /// <param name="x"></param>
+            /// <param name="y"></param>
+            /// <param name="color"></param>
             internal void SetColor(int x, int y, Color color)
             {
                 _bitmap.SetPixel(x, y, color);
             }
-
+            /// <summary>
+            /// Gets color at pixel (x, y)
+            /// </summary>
+            /// <param name="x"></param>
+            /// <param name="y"></param>
+            /// <returns></returns>
             internal Color GetColor(int x, int y)
             {
                 if (x < 0 || y < 0)
@@ -251,7 +313,10 @@ namespace PixelCreator
 
                 return _bitmap.GetPixel((int)(x / _owner.Magnification) , (int)(y / _owner.Magnification));
             }
-
+            /// <summary>
+            /// Creates a modifiable clone of WritableBitmap
+            /// </summary>
+            /// <returns></returns>
             public WriteableBitmap GetMap()
             {
                 return _bitmap.Clone();
@@ -264,7 +329,7 @@ namespace PixelCreator
                 }
 
                 System.Drawing.Bitmap bitmap;
-                using (System.IO.MemoryStream outStream = new System.IO.MemoryStream())
+                using (MemoryStream outStream = new MemoryStream())
                 {
                     BitmapEncoder enc = new BmpBitmapEncoder();
                     enc.Frames.Add(BitmapFrame.Create(_bitmap));
