@@ -19,13 +19,14 @@ using System.Windows.Shapes;
 
 namespace PixelCreator
 {
+    [Serializable]
     class FrameGIF
     {
         public Bitmap bitmap { get; set; }
-        public BitmapImage image { get; set; }
+        public WriteableBitmap wbitmap { get; set; }
         public string speed { get; set; }
+        [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
-
         public void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
             if (PropertyChanged != null)

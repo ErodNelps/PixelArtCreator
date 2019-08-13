@@ -19,9 +19,9 @@
                 <Fluent:Ribbon.Menu>
                     <Fluent:Backstage>
                         <Fluent:BackstageTabControl>
-                            <Fluent:BackstageTabItem Header="New" />
-                            <Fluent:BackstageTabItem Header="Export" />
-                            <Fluent:Button Header="Blue" />
+                            <Fluent:Button Header="New" Click="NewButton_Clicked" />
+                            <Fluent:Button Header="Save" Click="SaveButtonClicked"/>
+                            <Fluent:Button Header="Open" Click="OpenButton_Clicked"/>
                         </Fluent:BackstageTabControl>
                     </Fluent:Backstage>
                 </Fluent:Ribbon.Menu>
@@ -196,7 +196,7 @@
 
                 </DockPanel>
                 <!--Frame Container-->
-                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray">
+                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray" SelectionChanged="Frame_Selected">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -206,7 +206,7 @@
                         <DataTemplate>
                             <StackPanel Background="Transparent">
                                 <Border BorderBrush="Black" BorderThickness="1" Background="White">
-                                    <Image Width="80" Height="80" Source="{Binding bitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                                    <Image Width="80" Height="80" Source="{Binding wbitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                 </Border>
                                 <ComboBox Width="80" SelectedValuePath="Content" SelectedValue="{Binding speed}">
                                     <ComboBoxItem Content="50ms"></ComboBoxItem>
