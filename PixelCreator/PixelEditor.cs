@@ -158,23 +158,77 @@ namespace PixelCreator
             }
         }
 
+        //ROTATE
+        public void Rotate(int angle)
+        {
+            _surface.Rotate(angle);
+        }
+
+
+
+        Point startingPointDrawing;
+        Point oldPointDrawing;
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (MainWindow.selectedTool == Tools.Tool.Pencil)
+            switch (MainWindow.selectedTool)
             {
-                base.OnMouseMove(e);
-                if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
-                    Draw(primaryBrush);
-                else if (e.RightButton == MouseButtonState.Pressed && IsMouseCaptured)
-                    Draw(secondaryBrush);
+                case Tools.Tool.Pencil:
+                    {
+                        base.OnMouseMove(e);
+                        if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                            Draw(primaryBrush);
+                        else if (e.RightButton == MouseButtonState.Pressed && IsMouseCaptured)
+                            Draw(secondaryBrush);
+                    }
+                    break;
+                case Tools.Tool.Eraser:
+                    {
+                        base.OnMouseMove(e);
+                        if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                            Erase();
+                    }
+                    break;
+                case Tools.Tool.DrawLine:
+                    {
+                        base.OnMouseMove(e);
+                        var p = GetMousePosition(e);
+                        if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                        {
+                            if (oldPointDrawing != p)
+                            {
+                                _surface.DrawLine((int)startingPointDrawing.X, (int)startingPointDrawing.Y, (int)oldPointDrawing.X, (int)oldPointDrawing.Y, Colors.Transparent);
+                            }
+                            _surface.DrawLine((int)startingPointDrawing.X, (int)startingPointDrawing.Y, (int)p.X, (int)p.Y, primaryBrush);
+                            oldPointDrawing = p;
+                        }
+                    }
+                    break;
+                case Tools.Tool.DrawEllipse:
+                    {
+
+                    }
+                    break;
+                case Tools.Tool.DrawRectangle:
+                    {
+                        base.OnMouseMove(e);
+                        var p = GetMousePosition(e);
+                        if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+                        {
+                            if (oldPointDrawing != p)
+                            {
+                                _surface.DrawRectangle((int)startingPointDrawing.X, (int)startingPointDrawing.Y, (int)oldPointDrawing.X, (int)oldPointDrawing.Y, Colors.Transparent);
+                                //_surface.DrawRectangle((int)startingPointDrawing.X, (int)startingPointDrawing.Y, Math.Abs((int)oldPointDrawing.X - (int)startingPointDrawing.X), Math.Abs((int)oldPointDrawing.Y - (int)startingPointDrawing.Y), Colors.Transparent);
+                            }
+                            _surface.DrawRectangle((int)startingPointDrawing.X, (int)startingPointDrawing.Y, (int)p.X, (int)p.Y, primaryBrush);
+                            //_surface.DrawRectangle((int)startingPointDrawing.X, (int)startingPointDrawing.Y, Math.Abs((int)p.X - (int)startingPointDrawing.X), Math.Abs((int)p.Y - (int)startingPointDrawing.Y), BrushColor);
+                            oldPointDrawing = p;
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
-            else if (MainWindow.selectedTool == Tools.Tool.Eraser)
-            {
-                base.OnMouseMove(e);
-                if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
-                    Erase();
-            }
-            
         }
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
@@ -194,11 +248,49 @@ namespace PixelCreator
                 Draw(primaryBrush);
             }
             else if (MainWindow.selectedTool == Tools.Tool.Eraser)
-            {
-                base.OnMouseLeftButtonDown(e);
-                CaptureMouse();
-                Erase();
-            }
+
+                switch (MainWindow.selectedTool)
+                {
+                    case Tools.Tool.Pencil:
+                        {
+                            base.OnMouseLeftButtonDown(e);
+                            CaptureMouse();
+                            Draw(primaryBrush);
+                        }
+                        break;
+                    case Tools.Tool.Eraser:
+                        {
+                            base.OnMouseLeftButtonDown(e);
+                            CaptureMouse();
+                            Erase();
+                        }
+                        break;
+                    case Tools.Tool.DrawLine:
+                        {
+                            base.OnMouseLeftButtonDown(e);
+                            //Drawline
+                            startingPointDrawing = GetMousePosition(e);
+
+                            CaptureMouse();
+                        }
+                        break;
+                    case Tools.Tool.DrawEllipse:
+                        {
+
+                        }
+                        break;
+                    case Tools.Tool.DrawRectangle:
+                        {
+                            base.OnMouseLeftButtonDown(e);
+
+                            startingPointDrawing = GetMousePosition(e);
+
+                            CaptureMouse();
+                        }
+                        break;
+                    default:
+                        break;
+                }
         }
         protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
         {
@@ -352,6 +444,30 @@ namespace PixelCreator
 
                 return _bitmap.GetPixel((int)(x / _owner.Magnification) , (int)(y / _owner.Magnification));
             }
+            /// <summary>
+            /// DrawLine from P(startX, startY) to P(endX, endY)
+            /// </summary>
+            /// <param name="startX"></param>
+            /// <param name="startY"></param>
+            /// <param name="endX"></param>
+            /// <param name="endY"></param>
+            /// <param name="color"></param>
+            internal void DrawLine(int startX, int startY, int endX, int endY, Color color)
+            {
+                _bitmap.DrawLine(startX / _owner.Magnification, startY / _owner.Magnification, endX / _owner.Magnification, endY / _owner.Magnification, color);
+            }
+
+            internal void DrawRectangle(int startX, int startY, int width, int height, Color color)
+            {
+                _bitmap.DrawRectangle(startX / _owner.Magnification, startY / _owner.Magnification, width / _owner.Magnification, height / _owner.Magnification, color);
+            }
+            
+            //ROTATE
+            internal void Rotate(int angle)
+            {
+                 _bitmap = _bitmap.Rotate(angle);
+            }
+
             /// <summary>
             /// Creates a modifiable clone of WritableBitmap
             /// </summary>

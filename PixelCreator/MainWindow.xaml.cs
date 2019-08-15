@@ -78,7 +78,7 @@ namespace PixelCreator
             pixelGrid.Child = pixelEditor;
 
             FrameContainer.ItemsSource = frameCollection;
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), Wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
             _brushColor_Primary = Colors.Black;
             _brushColor_Secondary = Colors.White;
             _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
@@ -193,6 +193,52 @@ namespace PixelCreator
             }
         }
 
+        private void DrawLine_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawLine;
+        }
+        private void DrawEllipse_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawEllipse;
+        }
+        private void DrawRectangle_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawRectangle;
+        }
+
+        //ROTATE
+        private void RotateMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            string rotateMode = item.Header.ToString();
+
+            switch(rotateMode)
+            {
+                case "Rotate Left 90°":
+                    {
+                        pixelEditor.Rotate(90);
+                    }
+                    break;
+                case "Rotate Right 90°":
+                    {
+                        pixelEditor.Rotate(-90);
+                    }
+                    break;
+                case "Rotate Left 180°":
+                    {
+                        pixelEditor.Rotate(180);
+                    }
+                    break;
+                case "Rotate Right 180°":
+                    {
+                        pixelEditor.Rotate(-180);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
         Point? lastCenterPositionOnTarget;
         Point? lastMousePositionOnTarget;
         Point? lastDragPoint;
@@ -236,8 +282,7 @@ namespace PixelCreator
                 case Tools.Tool.Hand:
                     {
                         var mousePos = e.GetPosition(scrollViewer);
-                        if (mousePos.X <= scrollViewer.ViewportWidth && mousePos.Y <
-                            scrollViewer.ViewportHeight) //make sure we still can use the scrollbars
+                        if (mousePos.X <= scrollViewer.ViewportWidth && mousePos.Y < scrollViewer.ViewportHeight) //make sure we still can use the scrollbars
                         {
                             scrollViewer.Cursor = Cursors.SizeAll;
                             lastDragPoint = mousePos;
@@ -265,7 +310,6 @@ namespace PixelCreator
                         {
                             _brushColor_Primary = pickedColor;
                         }
-                       
                     }
                     break;
                 case Tools.Tool.ZoomIn:
@@ -389,7 +433,7 @@ namespace PixelCreator
         private void AddFrame_Clicked(object sender, RoutedEventArgs e)
         {
             System.Drawing.Bitmap bitmap = pixelEditor.ToBitmap();
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), Wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
         }
 
         private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -544,7 +588,7 @@ namespace PixelCreator
                         frameCollection = ReadFromBinaryFile<BindingList<FrameGIF>>(openfile.Name);
                         if (frameCollection.Count == 0)
                             return;
-                        pixelEditor.SetWriteableBitmap(frameCollection[0].Wbitmap);
+                        pixelEditor.SetWriteableBitmap(frameCollection[0].wbitmap);
                         pixelGrid.Child = null;
                         pixelGrid.Child = pixelEditor;
                     }
@@ -563,7 +607,7 @@ namespace PixelCreator
             var frame = FrameContainer.SelectedItem as FrameGIF;
             if (frame == null)
                 return;
-            pixelEditor.SetWriteableBitmap(frame.Wbitmap);
+            pixelEditor.SetWriteableBitmap(frame.wbitmap);
             pixelGrid.Child = null;
             pixelGrid.Child = pixelEditor;
         }

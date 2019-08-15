@@ -23,13 +23,13 @@ namespace PixelCreator
     class FrameGIF : INotifyPropertyChanged
     {
         public Bitmap bitmap { get; set; }
-        [field: NonSerialized]
-        WriteableBitmap _wbitmap;
-        public WriteableBitmap Wbitmap
-        {
-            get { return _wbitmap; }
-            set { _wbitmap = value; RaisePropertyChanged("Wbitmap"); }
-        }
+        //[field: NonSerialized]
+        public WriteableBitmap wbitmap { get; set; }
+        //public WriteableBitmap wbitmap
+        //{
+        //    get { return _wbitmap; }
+        //    set { _wbitmap = value; RaisePropertyChanged("Wbitmap"); }
+        //}
         public byte[] wbitmapByteArray { get; set; }
         string _speed;
         public string Speed
@@ -43,7 +43,7 @@ namespace PixelCreator
         }
         public FrameGIF Clone()
         {
-            FrameGIF clone = new FrameGIF() { bitmap = bitmap, Wbitmap = Wbitmap.Clone(), Speed = Speed };
+            FrameGIF clone = new FrameGIF() { bitmap = bitmap, wbitmap = wbitmap.Clone(), Speed = Speed };
             return clone;
         }
         [field: NonSerialized]
