@@ -22,7 +22,7 @@ namespace PixelCreator
     public partial class ResizeWindow : Window
     {
         PixelEditor pxE { get; set; }
-        public ResizeWindow(PixelEditor pixelEditor)
+        public ResizeWindow(ref PixelEditor pixelEditor)
         {
             InitializeComponent();
             DataContext = pixelEditor;
@@ -31,7 +31,7 @@ namespace PixelCreator
         
         private void ApplyButton_Clicked(object sender, RoutedEventArgs e)
         {
-            pxE.ResizeMap(pxE.PixelHeight, pxE.PixelHeight);
+            pxE = new PixelEditor(pxE.PixelHeight, pxE.PixelHeight);
             this.Close();
         }
     }

@@ -489,10 +489,10 @@ namespace PixelCreator
             {
                 for (int i = 0; i < framesCount; i++)
                 {
-                    gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
+                    gif.AddFrame( BitmapFromSource(frameCollection[i].wbitmap), delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
                 }
             }
-            PreviewGIFWindow preview = new PreviewGIFWindow("C:/gif.gif");
+            PreviewGIFWindow preview = new PreviewGIFWindow("C:/PixelCreator/pixelCreatorGif.gif");
             if (preview.ShowDialog() == true)
             {
                 SaveFileDialog exportGIFDialog = new SaveFileDialog();
@@ -793,7 +793,23 @@ namespace PixelCreator
                 }
             }
         }
+        public System.Drawing.Bitmap BitmapFromSource(WriteableBitmap wbitmap)
+        {
+            if (wbitmap == null)
+            {
+                throw new ArgumentNullException(nameof(wbitmap));
+            }
 
+            System.Drawing.Bitmap bitmap;
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(wbitmap));
+                enc.Save(outStream);
+                bitmap = new System.Drawing.Bitmap(outStream);
+            }
+            return bitmap;
+        }
         private void ResizeButton_Clicked(object sender, RoutedEventArgs e)
         {
             ResizeWindow resizeWindow = new ResizeWindow(pixelEditor);
