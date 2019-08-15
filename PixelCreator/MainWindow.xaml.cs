@@ -85,7 +85,7 @@ namespace PixelCreator
             _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
             PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
 
-            //Directory.CreateDirectory("C:/Users/PC/Documents/PixelCreator");
+            Directory.CreateDirectory("C:/PixelCreator");
         }
         
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -463,7 +463,7 @@ namespace PixelCreator
         {
             int framesCount = frameCollection.Count();
             
-            using (var gif = AnimatedGif.AnimatedGif.Create("C:/Users/PC/Documents/PixelCreator/gif.gif", 100))
+            using (var gif = AnimatedGif.AnimatedGif.Create("C:/PixelCreator/pixelCreatorGif.gif", 100))
             {
                 for (int i = 0; i < framesCount; i++)
                 {
