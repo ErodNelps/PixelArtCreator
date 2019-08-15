@@ -79,10 +79,31 @@
                                 <RadioButton x:Name="zoomOutTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent">
                                     <Image Source="/Icons/zoom-out.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawRectangle_Selected">
+                                    <Image Source="/Icons/rectangle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawEllipse_Selected">
+                                    <Image Source="/Icons/circle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawLine_Selected">
+                                    <Image Source="/Icons/straight-line.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </RadioButton>
                             </ItemsControl.Items>
                         </ItemsControl>
+                        <Menu Background="Transparent">
+                            <MenuItem x:Name="AddMethodMenuItem" Height="40" Width="52">
+                                <MenuItem.Icon>
+                                    <Image Source="Icons/rotation.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="3,-15,-26,-14"/>
+                                </MenuItem.Icon>
+                                <MenuItem Header="Rotate Left 90°" Click="RotateMenuItemClicked" />
+                                <MenuItem Header="Rotate Right 90°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Rotate Left 180°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Rotate Right 180°" Click="RotateMenuItemClicked"  />
+                            </MenuItem>
+                        </Menu>
+
                     </Fluent:RibbonGroupBox>
-                    <Fluent:RibbonGroupBox Header="Tools">
+                    <!--<Fluent:RibbonGroupBox Header="Tools">
                         <ItemsControl>
                             <ItemsControl.ItemContainerStyle>
                                 <Style>
@@ -95,25 +116,10 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.Items>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent"
-                                             ToggleButton.Checked="PencilTool_Selected">
-                                    <Image Source="/Icons/rectangle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
-                                    <Image Source="/Icons/circle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
-                                    <Image Source="/Icons/straight-line.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
-                                    <Image Source="/Icons/rotate-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="PencilTool_Selected">
-                                    <Image Source="/Icons/rotate-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                                </RadioButton>
+                                
                             </ItemsControl.Items>
                         </ItemsControl>
-                    </Fluent:RibbonGroupBox>
+                    </Fluent:RibbonGroupBox>-->
                     <Fluent:RibbonGroupBox Header="Color">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="primaryColor" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Width="40" Background="Transparent" BorderBrush="Transparent">
@@ -226,7 +232,7 @@
                 <Label Height="40" Width="100" HorizontalAlignment="Left" ></Label>
                 <Label Height="40" Width="100" HorizontalAlignment="Right"></Label>
             </Grid>
-            
+
             <ScrollViewer x:Name="scrollViewer" Background="Transparent" BorderBrush="Transparent"
                   Loaded="scrollViewer_Loaded"
                   HorizontalScrollBarVisibility="Auto"

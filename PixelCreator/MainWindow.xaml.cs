@@ -180,6 +180,52 @@ namespace PixelCreator
             }
         }
 
+        private void DrawLine_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawLine;
+        }
+        private void DrawEllipse_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawEllipse;
+        }
+        private void DrawRectangle_Selected(object sender, RoutedEventArgs e)
+        {
+            selectedTool = Tools.Tool.DrawRectangle;
+        }
+
+        //ROTATE
+        private void RotateMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            string rotateMode = item.Header.ToString();
+
+            switch(rotateMode)
+            {
+                case "Rotate Left 90°":
+                    {
+                        pixelEditor.Rotate(90);
+                    }
+                    break;
+                case "Rotate Right 90°":
+                    {
+                        pixelEditor.Rotate(-90);
+                    }
+                    break;
+                case "Rotate Left 180°":
+                    {
+                        pixelEditor.Rotate(180);
+                    }
+                    break;
+                case "Rotate Right 180°":
+                    {
+                        pixelEditor.Rotate(-180);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
         Point? lastCenterPositionOnTarget;
         Point? lastMousePositionOnTarget;
         Point? lastDragPoint;
@@ -223,8 +269,7 @@ namespace PixelCreator
                 case Tools.Tool.Hand:
                     {
                         var mousePos = e.GetPosition(scrollViewer);
-                        if (mousePos.X <= scrollViewer.ViewportWidth && mousePos.Y <
-                            scrollViewer.ViewportHeight) //make sure we still can use the scrollbars
+                        if (mousePos.X <= scrollViewer.ViewportWidth && mousePos.Y < scrollViewer.ViewportHeight) //make sure we still can use the scrollbars
                         {
                             scrollViewer.Cursor = Cursors.SizeAll;
                             lastDragPoint = mousePos;
@@ -252,7 +297,6 @@ namespace PixelCreator
                         {
                             _brushColor_Primary = pickedColor;
                         }
-                       
                     }
                     break;
                 case Tools.Tool.ZoomIn:
@@ -640,6 +684,8 @@ namespace PixelCreator
             pixelGrid.Child = null;
             pixelGrid.Child = pixelEditor;
         }
+
+
         /* #endregion */
     }
 }
