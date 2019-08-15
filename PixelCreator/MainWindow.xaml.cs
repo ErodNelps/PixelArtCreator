@@ -85,7 +85,11 @@ namespace PixelCreator
             _brushColor_Secondary = Colors.White;
             _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
             _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
+
             //PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
+
+
+            Directory.CreateDirectory("C:/PixelCreator");
         }
         
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -333,10 +337,12 @@ namespace PixelCreator
                         if (primaryColor.IsChecked == true)
                         {
                             _brushColor_Primary = pickedColor;
+                            BrushColor_Primary = new SolidColorBrush(_brushColor_Primary); ;
                         }
                         else if (secondColor.IsChecked == true)
                         {
                             _brushColor_Primary = pickedColor;
+                            BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
                         }
                     }
                     break;
@@ -478,7 +484,8 @@ namespace PixelCreator
         {
             int framesCount = frameCollection.Count();
             
-            using (var gif = AnimatedGif.AnimatedGif.Create("C:/gif.gif", 100))
+
+            using (var gif = AnimatedGif.AnimatedGif.Create("C:/PixelCreator/pixelCreatorGif.gif", 100))
             {
                 for (int i = 0; i < framesCount; i++)
                 {

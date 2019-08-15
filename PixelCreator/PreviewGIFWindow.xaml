@@ -11,7 +11,7 @@
         <Button Content="Save" FontSize="16" Height="35" Width="50" Canvas.Left="361" Canvas.Top="505" Click="SaveGifButton_Clicked"></Button>
         <Button Content="Cancel" IsCancel="True" FontSize="16" Height="35" Canvas.Left="431" Canvas.Top="505"></Button>
         <Grid Width="500" Height="500">
-            <Image gif:ImageBehavior.AnimatedSource="C:/gif.gif" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+            <Image gif:ImageBehavior.AnimatedSource="C:/PixelCreator/pixelCreatorGif.gif" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
         </Grid>
     </Canvas>
 </Window>
