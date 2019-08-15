@@ -21,6 +21,7 @@ using System.Windows.Shapes;
 using RadialMenuDemo.Utils;
 using AnimatedGif;
 using Microsoft.Win32;
+using System.Xml;
 namespace PixelCreator
 {
     /// <summary>
@@ -71,14 +72,14 @@ namespace PixelCreator
 
         public MainWindow()
         {
-            pixelEditor = new PixelEditor(128, 128);
+            pixelEditor = new PixelEditor(50, 50);
             InitializeComponent();
             DataContext = this;
             this.Closing += MainWindow_Closing;
             pixelGrid.Child = pixelEditor;
 
             FrameContainer.ItemsSource = frameCollection;
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
             _brushColor_Primary = Colors.Black;
             _brushColor_Secondary = Colors.White;
             _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
@@ -432,8 +433,7 @@ namespace PixelCreator
         //Add frame button click event
         private void AddFrame_Clicked(object sender, RoutedEventArgs e)
         {
-            System.Drawing.Bitmap bitmap = pixelEditor.ToBitmap();
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
         }
 
         private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -486,6 +486,7 @@ namespace PixelCreator
             }
             pixelEditor.ClearMap();
             frameCollection.Clear();
+            isSavedToFile = false;
         }
 
         bool TriggerSaveMechanism()
@@ -552,28 +553,21 @@ namespace PixelCreator
 
         void SaveToFile(string path)
         {
-            WriteToBinaryFile<BindingList<FrameGIF>>(path, frameCollection, false);
+            var doc = new XmlDocument();
+            
+            var root = doc.CreateElement("FrameGIF");
+            root.SetAttribute("FrameCount", frameCollection.Count.ToString());
+            for (int i = 0; i < frameCollection.Count; i++)
+            {
+                var frame = doc.CreateElement("Frame");
+                root.AppendChild(frame);
+                frame.SetAttribute("Speed", frameCollection[i].Speed);
+                frame.SetAttribute("WBitmap", frameCollection[i].wbitmap.ToByteArray().ToString());
+            }
+            doc.AppendChild(root);
+            doc.Save(currentSaveLoc);
             isSavedToFile = true;
-        }
-
-        public static void WriteToBinaryFile<T>(string filePath, T objectToWrite, bool append = false)
-        {
-            using (Stream stream = File.Open(filePath, append ? FileMode.Append : FileMode.Create))
-            {
-                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                binaryFormatter.Serialize(stream, objectToWrite);
-            }
-        }
-
-        public static T ReadFromBinaryFile<T>(string filePath)
-        {
-            using (Stream stream = File.Open(filePath, FileMode.Open))
-            {
-                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                return (T)binaryFormatter.Deserialize(stream);
-            }
-        }
-        
+        }    
         
         private void OpenButton_Clicked(object sender, RoutedEventArgs e)
         {
@@ -585,9 +579,20 @@ namespace PixelCreator
                 {
                     if (openfile.Exists)
                     {
-                        frameCollection = ReadFromBinaryFile<BindingList<FrameGIF>>(openfile.Name);
-                        if (frameCollection.Count == 0)
-                            return;
+                        frameCollection.Clear();
+                        var doc = new XmlDocument();
+                        doc.Load(openfile.FullName);
+                        var root = doc.DocumentElement;
+                        var frameCount = int.Parse(root.Attributes["FrameCount"].Value);
+                        for(int i =0; i < frameCount; i++)
+                        {
+                            byte[] byteArray = Encoding.ASCII.GetBytes(root.ChildNodes[i].Attributes["WBitmap"].Value);
+                            var bitmapImage = new BitmapImage();
+                            var memoryStream = new MemoryStream(byteArray);
+                            bitmapImage.StreamSource = memoryStream;
+                            frameCollection.Add(new FrameGIF() { wbitmap = new WriteableBitmap(bitmapImage), Speed = root.ChildNodes[i].Attributes["Speed"].Value});
+                        }
+                        currentFileName = openfile.Name;
                         pixelEditor.SetWriteableBitmap(frameCollection[0].wbitmap);
                         pixelGrid.Child = null;
                         pixelGrid.Child = pixelEditor;
@@ -710,6 +715,11 @@ namespace PixelCreator
                 CreateThumbnail(exportImageDialog.FileName, pixelEditor.GetWriteableBitmap());
             }
             
+        }
+
+        private void SaveGIFButton_Clicked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

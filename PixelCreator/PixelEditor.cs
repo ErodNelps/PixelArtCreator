@@ -494,15 +494,6 @@ namespace PixelCreator
                 }
                 return bitmap;
             }
-            public byte[] WriteableBitmapToByteArray()
-            {
-                var width = _bitmap.PixelWidth;
-                var height = _bitmap.PixelHeight;
-                var stride = width * ((_bitmap.Format.BitsPerPixel + 7) / 8);
-                var bitmapData = new byte[height * stride];
-                _bitmap.CopyPixels(bitmapData, stride, 0);
-                return bitmapData;
-            }
         }
        
     }

@@ -23,14 +23,8 @@ namespace PixelCreator
     class FrameGIF : INotifyPropertyChanged
     {
         public Bitmap bitmap { get; set; }
-        //[field: NonSerialized]
         public WriteableBitmap wbitmap { get; set; }
-        //public WriteableBitmap wbitmap
-        //{
-        //    get { return _wbitmap; }
-        //    set { _wbitmap = value; RaisePropertyChanged("Wbitmap"); }
-        //}
-        public byte[] wbitmapByteArray { get; set; }
+
         string _speed;
         public string Speed
         {
