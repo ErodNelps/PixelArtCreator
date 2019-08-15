@@ -29,7 +29,11 @@
                 <Fluent:RibbonTabItem Header="Home">
                     <!--Clipboard Interaction-->
                     <Fluent:RibbonGroupBox Header="Clipboard">
-                        <Fluent:Button Header="Save" Icon="/Icons/save.png" LargeIcon="/Icons/save.png" Click="SaveButtonClicked"></Fluent:Button>
+                        <Fluent:Button Header="Save" Name="ClipboardRibbon" Click="SaveButtonClicked">
+                            <Fluent:Button.LargeIcon>
+                                <Image Source="/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                            </Fluent:Button.LargeIcon>
+                        </Fluent:Button>
                         <StackPanel>
                             <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31" Click="ClearButton_Clicked">
                                 <Image Source="/Icons/clear.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
@@ -73,7 +77,7 @@
                                 <RadioButton x:Name="zoomInTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ZoomInTool_Selected">
                                     <Image Source="/Icons/zoom-in.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton x:Name="zoomOutTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent">
+                                <RadioButton x:Name="zoomOutTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ZoomOutTool_Selected">
                                     <Image Source="/Icons/zoom-out.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawRectangle_Selected">
@@ -94,8 +98,9 @@
                                 </MenuItem.Icon>
                                 <MenuItem Header="Rotate Left 90°" Click="RotateMenuItemClicked" />
                                 <MenuItem Header="Rotate Right 90°" Click="RotateMenuItemClicked"  />
-                                <MenuItem Header="Rotate Left 180°" Click="RotateMenuItemClicked"  />
-                                <MenuItem Header="Rotate Right 180°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Rotate 180°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Flip Vertical" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Flip Horizontal" Click="RotateMenuItemClicked"  />
                             </MenuItem>
                         </Menu>
 
@@ -236,7 +241,7 @@
                         </TransformGroup>
                     </Grid.LayoutTransform>
                     <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="500" Width="500" x:Name="pixelGrid" MouseEnter="pixelGridMouseEnter" MouseLeave="pixelGridMouseLeave">
-
+                        
                     </Viewbox>
 
                 </Grid>

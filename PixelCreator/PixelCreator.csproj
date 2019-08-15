@@ -53,7 +53,6 @@
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Drawing.Common.4.5.1\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
-
     <Reference Include="System.Net.Http">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Net.Http.dll</HintPath>
     </Reference>
@@ -181,6 +180,9 @@
   <ItemGroup>
     <Resource Include="Icons\savegif.png" />
     <Resource Include="Icons\rotation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Utils\RadialMenu.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
