@@ -175,7 +175,11 @@ namespace PixelCreator
             _surface.FlipHorizontal();
             _surface.InvalidateVisual();
         }
-
+        public void ResizeMap(int width, int height)
+        {
+            _surface.Resize(width, height);
+            _surface.InvalidateVisual();
+        }
         Point startingPointDrawing;
         Point movingPointDrawing;
 
@@ -372,15 +376,12 @@ namespace PixelCreator
             dc.Close();
             return dv;
         }
+
         
         public System.Drawing.Bitmap ToBitmap()
         {
             System.Drawing.Bitmap bitmap = _surface.BitmapFromSource();
             return bitmap;
-        }
-        public byte[] ToByteArray()
-        {
-            return _surface.WriteableBitmapToByteArray();
         }
         public WriteableBitmap GetWriteableBitmap()
         {
@@ -403,7 +404,11 @@ namespace PixelCreator
                 _bitmap.Clear(Colors.Transparent);
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
                 _bitmap.Changed += OnBitmapChanged;
-            }           
+            }
+            public void Resize(int width, int height)
+            {
+                _bitmap = _bitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            }
             public void SetMap(WriteableBitmap bitmap)
             {
                 _bitmap = bitmap;

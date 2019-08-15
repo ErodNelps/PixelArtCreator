@@ -69,10 +69,11 @@ namespace PixelCreator
         {
             isEnterGrid = false;
         }
-
+        public int _currentHeight { get; set; } = 128;
+        public int _currentWidth { get; set; } = 128;
         public MainWindow()
         {
-            pixelEditor = new PixelEditor(50, 50);
+            pixelEditor = new PixelEditor(_currentWidth, _currentHeight);
             InitializeComponent();
             DataContext = this;
             this.Closing += MainWindow_Closing;
@@ -84,9 +85,7 @@ namespace PixelCreator
             _brushColor_Secondary = Colors.White;
             _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
             _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
-            PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
-
-            //Directory.CreateDirectory("C:/Users/PC/Documents/PixelCreator");
+            //PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
         }
         
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -264,8 +263,26 @@ namespace PixelCreator
             scrollViewer.MouseMove += OnMouseMove;
         }
 
+        int _posX = 0;
+        int _posY = 0;
+
+        string _position;
+        public string Position {
+            get {return _position; }
+            set { _position = value;
+                RaisePropertyChanged("Position");
+            }
+        }
         void OnMouseMove(object sender, MouseEventArgs e)
         {
+            var point = pixelEditor.GetMousePosition(e);
+            if ((int)point.X / 10 + 1 > 0 && (int)point.X / 10 + 1 < pixelEditor.PixelWidth && (int)point.Y / 10 + 1 > 0 && (int)point.Y / 10 + 1 < pixelEditor.PixelHeight)
+            {
+                _posX = (int)point.X / 10 + 1;
+                _posY = (int)point.Y / 10 + 1;
+
+                Position = $"X: {_posX} Y:{_posY}";
+            }
             if (isEnterGrid && selectedTool == Tools.Tool.Pencil)
             {
                 base.OnMouseMove(e);
@@ -461,15 +478,31 @@ namespace PixelCreator
         {
             int framesCount = frameCollection.Count();
             
-            using (var gif = AnimatedGif.AnimatedGif.Create("C:/Users/PC/Documents/PixelCreator/gif.gif", 100))
+            using (var gif = AnimatedGif.AnimatedGif.Create("C:/gif.gif", 100))
             {
                 for (int i = 0; i < framesCount; i++)
                 {
                     gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
                 }
             }
-            PreviewGIFWindow preview = new PreviewGIFWindow();
-            preview.ShowDialog();
+            PreviewGIFWindow preview = new PreviewGIFWindow("C:/gif.gif");
+            if (preview.ShowDialog() == true)
+            {
+                SaveFileDialog exportGIFDialog = new SaveFileDialog();
+                exportGIFDialog.Filter = "GIF | *.gif";
+                exportGIFDialog.DefaultExt = "*.gif";
+                exportGIFDialog.OverwritePrompt = true;
+                if (exportGIFDialog.ShowDialog() == true)
+                {
+                    using (var gif = AnimatedGif.AnimatedGif.Create(exportGIFDialog.FileName, 100))
+                    {
+                        for (int i = 0; i < framesCount; i++)
+                        {
+                            gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
+                        }
+                    }
+                }
+            }
         }
 
         void CreateThumbnail(string filename, BitmapSource image5)
@@ -485,7 +518,7 @@ namespace PixelCreator
             }
         }
 
-        string currentFileName = "Untitled.pixc";
+        string currentFileName = "Untitled.xml";
         string currentSaveLoc = "";
         bool isSavedToFile = false;
         private void NewButton_Clicked(object sender, RoutedEventArgs e)
@@ -498,7 +531,18 @@ namespace PixelCreator
             frameCollection.Clear();
             isSavedToFile = false;
         }
-
+        public BitmapImage ToImage(byte[] array)
+        {
+            using (var ms = new System.IO.MemoryStream(array))
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad; // here
+                image.StreamSource = ms;
+                image.EndInit();
+                return image;
+            }
+        }
         bool TriggerSaveMechanism()
         {
             if (pixelEditor.HasUnsavedChanges())
@@ -511,8 +555,8 @@ namespace PixelCreator
                         if (!isSavedToFile)
                         {
                             SaveFileDialog saveFileDialog = new SaveFileDialog();
-                            saveFileDialog.Filter = "PixelCreator (*.pixc)| *.pixc";
-                            saveFileDialog.DefaultExt = "*.pixc";
+                            saveFileDialog.Filter = "PixelCreator (*.xml)| *.xml";
+                            saveFileDialog.DefaultExt = "*.xml";
                             saveFileDialog.OverwritePrompt = true;
                             if (saveFileDialog.ShowDialog() == true)
                             {
@@ -533,8 +577,6 @@ namespace PixelCreator
                     return false;
                 }
             }
-
-            
             return true;
         }
         private void SaveButtonClicked(object sender, RoutedEventArgs e)
@@ -542,8 +584,8 @@ namespace PixelCreator
             if (!isSavedToFile)
             {
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "PixelCreator (*.pixc)| *.pixc";
-                saveFileDialog.DefaultExt = "*.pixc";
+                saveFileDialog.Filter = "PixelCreator (*.xml)| *.xml";
+                saveFileDialog.DefaultExt = "*.xml";
                 saveFileDialog.OverwritePrompt = true;
                 if (saveFileDialog.ShowDialog() == true)
                 {
@@ -572,7 +614,7 @@ namespace PixelCreator
                 var frame = doc.CreateElement("Frame");
                 root.AppendChild(frame);
                 frame.SetAttribute("Speed", frameCollection[i].Speed);
-                frame.SetAttribute("WBitmap", frameCollection[i].wbitmap.ToByteArray().ToString());
+                frame.SetAttribute("WBitmap", Encoding.UTF8.GetString(frameCollection[i].wbitmap.ToByteArray()));
             }
             doc.AppendChild(root);
             doc.Save(currentSaveLoc);
@@ -597,9 +639,7 @@ namespace PixelCreator
                         for(int i =0; i < frameCount; i++)
                         {
                             byte[] byteArray = Encoding.ASCII.GetBytes(root.ChildNodes[i].Attributes["WBitmap"].Value);
-                            var bitmapImage = new BitmapImage();
-                            var memoryStream = new MemoryStream(byteArray);
-                            bitmapImage.StreamSource = memoryStream;
+                            var bitmapImage = ToImage(byteArray);
                             frameCollection.Add(new FrameGIF() { wbitmap = new WriteableBitmap(bitmapImage), Speed = root.ChildNodes[i].Attributes["Speed"].Value});
                         }
                         currentFileName = openfile.Name;
@@ -706,7 +746,7 @@ namespace PixelCreator
         }
         private void PixelSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
+            //PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
         }
 
         private void ClearButton_Clicked(object sender, RoutedEventArgs e)
@@ -717,7 +757,7 @@ namespace PixelCreator
         private void ExportButton_Clicked(object sender, RoutedEventArgs e)
         {
             SaveFileDialog exportImageDialog = new SaveFileDialog();
-            exportImageDialog.Filter = "Png (Protable network graphics| *.pixc";
+            exportImageDialog.Filter = "Png (Protable network graphics| *.png)";
             exportImageDialog.DefaultExt = "*.png";
             exportImageDialog.OverwritePrompt = true;
             if(exportImageDialog.ShowDialog() == true)
@@ -729,7 +769,28 @@ namespace PixelCreator
 
         private void SaveGIFButton_Clicked(object sender, RoutedEventArgs e)
         {
+            SaveFileDialog exportGIFDialog = new SaveFileDialog();
+            exportGIFDialog.Filter = "GIF | *.gif";
+            exportGIFDialog.DefaultExt = "*.gif";
+            exportGIFDialog.OverwritePrompt = true;
+            if (exportGIFDialog.ShowDialog() == true)
+            {
+                int framesCount = frameCollection.Count();
 
+                using (var gif = AnimatedGif.AnimatedGif.Create(exportGIFDialog.FileName, 100))
+                {
+                    for (int i = 0; i < framesCount; i++)
+                    {
+                        gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
+                    }
+                }
+            }
+        }
+
+        private void ResizeButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            ResizeWindow resizeWindow = new ResizeWindow(pixelEditor);
+            resizeWindow.Show();
         }
     }
 }
