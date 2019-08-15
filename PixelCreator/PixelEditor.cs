@@ -19,7 +19,7 @@ using System.Windows.Shapes;
 
 namespace PixelCreator
 {
-    public class PixelEditor : FrameworkElement, INotifyPropertyChanged
+    public class PixelEditor : FrameworkElement
     {
         private readonly Surface _surface;
         private readonly Visual _gridTransparent;
@@ -27,8 +27,9 @@ namespace PixelCreator
         public int PixelWidth { get; set; }
         public int PixelHeight { get; set; }
         public int Magnification { get; } = 10;
-        public Color BrushColor { get; set; } = Colors.Black;
-
+        public Color primaryBrush { get; set; }
+        public Color secondaryBrush { get; set; }
+        public int BrushSize { get; set; } = 20;
         public PixelEditor()
         {
             _gridTransparent = CreateGridLines();
@@ -38,6 +39,7 @@ namespace PixelCreator
             AddVisualChild(_gridTransparent);
             AddVisualChild(_surface);
         }
+
         public PixelEditor(int pixelWidth, int pixelHeight)
         {
             PixelWidth = pixelWidth;
@@ -60,7 +62,7 @@ namespace PixelCreator
         }
 
         //Draw pixel
-        private void Draw()
+        private void Draw(Color brushColor)
         {
             var p = Mouse.GetPosition(_surface);
             var magnification = Magnification;
@@ -71,10 +73,9 @@ namespace PixelCreator
                 return;
 
             _surface.SetColor(
-                (int)(p.X / magnification),
-                (int)(p.Y / magnification),
-                BrushColor);
-
+                (int)((p.X)/ magnification),
+                (int)((p.Y)/ magnification),
+                brushColor);
             //_surface.InvalidateVisual();
         }
         
@@ -91,26 +92,13 @@ namespace PixelCreator
         }
         private void Erase()
         {
-            var p = Mouse.GetPosition(_surface);
-            var magnification = Magnification;
-            var surfaceWidth = PixelWidth * magnification;
-            var surfaceHeight = PixelHeight * magnification;
-
-            if (p.X < 0 || p.X >= surfaceWidth || p.Y < 0 || p.Y >= surfaceHeight)
-                return;
-
-            _surface.SetColor(
-                (int)(p.X / magnification),
-                (int)(p.Y / magnification),
-                Colors.Transparent);
+            Draw(Colors.Transparent);
         }
 
         public Point GetMousePosition(MouseEventArgs e)
         {
             base.OnMouseMove(e);
             var p = e.GetPosition(this);
-            Debug.WriteLine($"{(int)(p.X + 1) / 10} - {(int)(p.Y + 1) / 10}");
-            Debug.WriteLine($"{_surface.GetColor((int)p.X, (int)p.Y)}");
             return p;
         }
 
@@ -176,7 +164,9 @@ namespace PixelCreator
             {
                 base.OnMouseMove(e);
                 if (e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
-                    Draw();
+                    Draw(primaryBrush);
+                else if (e.RightButton == MouseButtonState.Pressed && IsMouseCaptured)
+                    Draw(secondaryBrush);
             }
             else if (MainWindow.selectedTool == Tools.Tool.Eraser)
             {
@@ -186,14 +176,22 @@ namespace PixelCreator
             }
             
         }
-
+        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        {
+            if (MainWindow.selectedTool == Tools.Tool.Pencil)
+            {
+                base.OnMouseLeftButtonDown(e);
+                CaptureMouse();
+                Draw(secondaryBrush);
+            }
+        }
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             if (MainWindow.selectedTool == Tools.Tool.Pencil)
             {
                 base.OnMouseLeftButtonDown(e);
                 CaptureMouse();
-                Draw();
+                Draw(primaryBrush);
             }
             else if (MainWindow.selectedTool == Tools.Tool.Eraser)
             {
@@ -202,7 +200,11 @@ namespace PixelCreator
                 Erase();
             }
         }
-
+        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseRightButtonUp(e);
+            ReleaseMouseCapture();
+        }
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonUp(e);
@@ -256,6 +258,10 @@ namespace PixelCreator
             System.Drawing.Bitmap bitmap = _surface.BitmapFromSource();
             return bitmap;
         }
+        public byte[] ToByteArray()
+        {
+            return _surface.WriteableBitmapToByteArray();
+        }
         public WriteableBitmap GetWriteableBitmap()
         {
             return _surface.GetMap();
@@ -264,6 +270,7 @@ namespace PixelCreator
         {
             _surface.SetMap(bitmap);
         }
+
         private sealed class Surface : FrameworkElement
         {
             private readonly PixelEditor _owner;
@@ -276,7 +283,7 @@ namespace PixelCreator
                 _bitmap.Clear(Colors.Transparent);
                 RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.NearestNeighbor);
                 _bitmap.Changed += OnBitmapChanged;
-            }
+            }           
             public void SetMap(WriteableBitmap bitmap)
             {
                 _bitmap = bitmap;
@@ -353,6 +360,7 @@ namespace PixelCreator
             {
                 return _bitmap.Clone();
             }
+
             public System.Drawing.Bitmap BitmapFromSource()
             {
                 if (_bitmap == null)
@@ -370,16 +378,16 @@ namespace PixelCreator
                 }
                 return bitmap;
             }
-        }
-        
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        void RaisePropertyChanged([CallerMemberName]string propertyName = null)
-        {
-            if (PropertyChanged != null)
+            public byte[] WriteableBitmapToByteArray()
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                var width = _bitmap.PixelWidth;
+                var height = _bitmap.PixelHeight;
+                var stride = width * ((_bitmap.Format.BitsPerPixel + 7) / 8);
+                var bitmapData = new byte[height * stride];
+                _bitmap.CopyPixels(bitmapData, stride, 0);
+                return bitmapData;
             }
         }
+       
     }
 }

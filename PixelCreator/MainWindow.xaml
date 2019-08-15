@@ -3,12 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:RadialMenu="clr-namespace:RadialMenu.Controls;assembly=RadialMenu"    
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"   
         xmlns:controls="clr-namespace:PixelCreator"
         xmlns:Fluent="urn:fluent-ribbon"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800" MouseRightButtonDown="Window_MouseRightButtonDown" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="800" Width="800" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary Source="Utils/Icons.xaml"/>
     </Window.Resources>
@@ -22,6 +21,7 @@
                             <Fluent:Button Header="New" Click="NewButton_Clicked" />
                             <Fluent:Button Header="Save" Click="SaveButtonClicked"/>
                             <Fluent:Button Header="Open" Click="OpenButton_Clicked"/>
+                            <Fluent:Button Header="Export" Click="ExportButton_Clicked"/>
                         </Fluent:BackstageTabControl>
                     </Fluent:Backstage>
                 </Fluent:Ribbon.Menu>
@@ -29,13 +29,10 @@
                 <Fluent:RibbonTabItem Header="Home">
                     <!--Clipboard Interaction-->
                     <Fluent:RibbonGroupBox Header="Clipboard">
-                        <Fluent:Button Header="Paste" Icon="/Icons/save.png" LargeIcon="/Icons/save.png"></Fluent:Button>
+                        <Fluent:Button Header="Save" Icon="/Icons/save.png" LargeIcon="/Icons/save.png" Click="SaveButtonClicked"></Fluent:Button>
                         <StackPanel>
-                            <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31">
+                            <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31" Click="ClearButton_Clicked">
                                 <Image Source="/Icons/clear.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                            </Button>
-                            <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31">
-                                <Image Source="/Icons/cut.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                             </Button>
                         </StackPanel>
                     </Fluent:RibbonGroupBox>
@@ -61,13 +58,13 @@
                                 <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected">
                                     <Image Source="/Icons/pencil.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="EraserTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="EraserTool_Selected">
                                     <Image Source="/Icons/rubber.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="FillBucketTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="FillBucketTool_Selected">
                                     <Image Source="/Icons/paint-bucket.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="ColorPickerTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ColorPickerTool_Selected">
                                     <Image Source="/Icons/color-picker.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
                                 <RadioButton x:Name="handTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="HandTool_Selected">
@@ -114,13 +111,19 @@
                             </ItemsControl.Items>
                         </ItemsControl>
                     </Fluent:RibbonGroupBox>
-                    <Fluent:RibbonGroupBox Header="Color">
+                    <Fluent:RibbonGroupBox>
+                        <StackPanel>
+                            <Label Content="{Binding PixelSizeLabel}"></Label>
+                            <Slider x:Name="pixelSizeSlider" Maximum="160" Minimum="10" TickFrequency="10" Width="120" ValueChanged="PixelSizeChanged" IsSnapToTickEnabled="True"></Slider>
+                        </StackPanel>
+                    </Fluent:RibbonGroupBox>
+                    <Fluent:RibbonGroupBox Header="Brush Color">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="primaryColor" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Width="40" Background="Transparent" BorderBrush="Transparent">
-                                <Rectangle Width="34" Height="34" Fill="{Binding _BrushColor_Secondary}" Stroke="Black"></Rectangle>
+                                <Rectangle Width="34" Height="34" Fill="{Binding BrushColor_Primary}" Stroke="Gray"></Rectangle>
                             </RadioButton>
                             <RadioButton x:Name="secondColor" Style="{StaticResource {x:Type ToggleButton}}" Width="40" Background="Transparent" BorderBrush="Transparent">
-                                <Rectangle Width="25" Height="25" Fill="{Binding _BrushColor_Secondary}" Stroke="Black"></Rectangle>
+                                <Rectangle Width="30" Height="30" Fill="{Binding BrushColor_Secondary}" Stroke="Gray"></Rectangle>
                             </RadioButton>
                             <Fluent:DropDownButton Header="Color 1" Height="50">
                                 <Fluent:ColorGallery x:Name="colorGalleryStandard" SelectedColor="Black" IsNoColorButtonVisible="True" SelectedColorChanged="ColorGallery_SelectedColorChanged">
@@ -156,7 +159,7 @@
                             <TextBlock Text="Add frame" FontSize="14" Margin="4,0,0,0" VerticalAlignment="Center" Foreground="White"></TextBlock>
                         </StackPanel>
                     </Button>
-                    <Button BorderBrush="Transparent" Background="Transparent">
+                    <Button BorderBrush="Transparent" Background="Transparent" Click="CopyFrame_Clicked">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Icons/copy.png" RenderOptions.BitmapScalingMode="HighQuality" Height="25" Width="25"/>
                             <TextBlock Text="Copy frame" FontSize="14" Margin="4,0,0,0" VerticalAlignment="Center" Foreground="White"></TextBlock>
@@ -166,6 +169,12 @@
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Icons/preview.png" RenderOptions.BitmapScalingMode="HighQuality" Height="25" Width="25"/>
                             <TextBlock Text="Preview" FontSize="14" Margin="4,0,0,0" VerticalAlignment="Center" Foreground="White"></TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button BorderBrush="Transparent" Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Icons/savegif.png" RenderOptions.BitmapScalingMode="HighQuality" Height="25" Width="25"/>
+                            <TextBlock Text="Save GIF" FontSize="14" Margin="4,0,0,0" VerticalAlignment="Center" Foreground="White"></TextBlock>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -183,20 +192,20 @@
                     </ComboBox>
                     <Label DockPanel.Dock="Right" Content="ALL FRAME:" Foreground="White"></Label>
                     <Label DockPanel.Dock="Left" Content="Control" Foreground="White" FontSize="14"></Label>
-                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" >
+                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" Click="MoveLeftButton_Clicked">
                         <Image Source="/Icons/move-left.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
-                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" >
+                    <Button DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" Click="MoveRightButton_Clicked">
                         <Image Source="/Icons/move-right.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
-                    <Button BorderBrush="Transparent" Background="Transparent">
+                    <Button BorderBrush="Transparent" Background="Transparent" Click="DeleteFrame_Clicked">
                         <Image Source="/Icons/delete.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                     </Button>
                     <Grid/>
 
                 </DockPanel>
                 <!--Frame Container-->
-                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray" SelectionChanged="Frame_Selected">
+                <ListView x:Name="FrameContainer" Background="DarkGray" BorderBrush="DarkGray" SelectionChanged="Frame_Selected" SelectedIndex="0">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -208,7 +217,7 @@
                                 <Border BorderBrush="Black" BorderThickness="1" Background="White">
                                     <Image Width="80" Height="80" Source="{Binding wbitmap}" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                                 </Border>
-                                <ComboBox Width="80" SelectedValuePath="Content" SelectedValue="{Binding speed}">
+                                <ComboBox Width="80" SelectedValuePath="Content" SelectedValue="{Binding Speed}">
                                     <ComboBoxItem Content="50ms"></ComboBoxItem>
                                     <ComboBoxItem Content="100ms"></ComboBoxItem>
                                     <ComboBoxItem Content="250ms"></ComboBoxItem>
@@ -226,7 +235,7 @@
                 <Label Height="40" Width="100" HorizontalAlignment="Left" ></Label>
                 <Label Height="40" Width="100" HorizontalAlignment="Right"></Label>
             </Grid>
-            
+
             <ScrollViewer x:Name="scrollViewer" Background="Transparent" BorderBrush="Transparent"
                   Loaded="scrollViewer_Loaded"
                   HorizontalScrollBarVisibility="Auto"
@@ -244,95 +253,5 @@
                 </Grid>
             </ScrollViewer>
         </DockPanel>
-
-        <RadialMenu:RadialMenu IsOpen="{Binding IsOpen1}">
-            <RadialMenu:RadialMenu.CentralItem>
-                <RadialMenu:RadialMenuCentralItem Command="{Binding CloseRadialMenu1}">
-                    <Rectangle Width="25" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_close}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                </RadialMenu:RadialMenuCentralItem>
-            </RadialMenu:RadialMenu.CentralItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test1}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="25" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_add}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Ajouter
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test2}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="25" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_edit}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Édition
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test3}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="23" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_save}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Sauvegarder
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test4}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="20" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_delete}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Supprimer
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test5}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="20" Height="25">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_page}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Nouvelle page
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-
-            <RadialMenu:RadialMenuItem Command="{Binding Test6}">
-                <WrapPanel Orientation="Vertical">
-                    <Rectangle Width="19" Height="26">
-                        <Rectangle.Fill>
-                            <VisualBrush Visual="{StaticResource appbar_upload}"/>
-                        </Rectangle.Fill>
-                    </Rectangle>
-                    <TextBlock FontSize="14" TextAlignment="Center">
-                            Partager
-                    </TextBlock>
-                </WrapPanel>
-            </RadialMenu:RadialMenuItem>
-        </RadialMenu:RadialMenu>
     </Grid>
 </Window>

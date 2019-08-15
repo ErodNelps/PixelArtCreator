@@ -20,19 +20,38 @@ using System.Windows.Shapes;
 namespace PixelCreator
 {
     [Serializable]
-    class FrameGIF
+    class FrameGIF : INotifyPropertyChanged
     {
         public Bitmap bitmap { get; set; }
-        public WriteableBitmap wbitmap { get; set; }
-        public string speed { get; set; }
+        [field: NonSerialized]
+        WriteableBitmap _wbitmap;
+        public WriteableBitmap Wbitmap
+        {
+            get { return _wbitmap; }
+            set { _wbitmap = value; RaisePropertyChanged("Wbitmap"); }
+        }
+        public byte[] wbitmapByteArray { get; set; }
+        string _speed;
+        public string Speed
+        {
+            get { return _speed;}
+            set
+            {
+                _speed = value;
+                RaisePropertyChanged("Speed");
+            }
+        }
+        public FrameGIF Clone()
+        {
+            FrameGIF clone = new FrameGIF() { bitmap = bitmap, Wbitmap = Wbitmap.Clone(), Speed = Speed };
+            return clone;
+        }
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChanged([CallerMemberName]string propertyName = null)
+        void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
-            if (PropertyChanged != null)
-            {
+            if(PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
         }
     }
 }

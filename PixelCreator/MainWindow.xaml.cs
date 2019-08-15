@@ -21,7 +21,6 @@ using System.Windows.Shapes;
 using RadialMenuDemo.Utils;
 using AnimatedGif;
 using Microsoft.Win32;
-
 namespace PixelCreator
 {
     /// <summary>
@@ -29,16 +28,31 @@ namespace PixelCreator
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-
         PixelEditor pixelEditor;
         BindingList<FrameGIF> frameCollection = new BindingList<FrameGIF>();
         Color _brushColor_Primary { get; set; }
         Color _brushColor_Secondary { get; set; }
-        Brush _BrushColor_Primary { get; set; }
-        Brush _BrushColor_Secondary { get; set; }
+        Brush _BrushColor_Primary;
+        public Brush BrushColor_Primary
+        {
+            get { return _BrushColor_Primary; }
+            set
+            {
+                _BrushColor_Primary = value;
+                RaisePropertyChanged("BrushColor_Primary");
+            }
+        }
+        Brush _BrushColor_Secondary;
+        public Brush BrushColor_Secondary
+        {
+            get { return _BrushColor_Secondary; }
+            set
+            {
+                _BrushColor_Secondary = value;
+                RaisePropertyChanged("BrushColor_Secondary");
+            }
+        }
         List<Color> _recentColors = new List<Color>();
-
-
         internal static Tools.Tool selectedTool;
 
         public int _gifPanelHeightFrom { get; set; }
@@ -61,23 +75,23 @@ namespace PixelCreator
             InitializeComponent();
             DataContext = this;
             this.Closing += MainWindow_Closing;
-            //ParentGrid.Children.Add(pixelEditor);
             pixelGrid.Child = pixelEditor;
-            //pixelGrid.Children.Add(pixelEditor);
-            FrameContainer.ItemsSource = frameCollection;
-            _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
-            
-            _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
-        }
 
+            FrameContainer.ItemsSource = frameCollection;
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), Wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
+            _brushColor_Primary = Colors.Black;
+            _brushColor_Secondary = Colors.White;
+            _BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
+            _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
+            PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
+
+            Directory.CreateDirectory("C:/Users/PC/Documents/PixelCreator");
+        }
+        
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            TriggerSaveMechanism();
-        }
-
-        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            OpenRadialMenu1.Execute(null);
+            if (!TriggerSaveMechanism())
+                return;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -98,16 +112,15 @@ namespace PixelCreator
                 if (primaryColor.IsChecked == true)
                 {
                     _brushColor_Primary = selectedColor;
-                    _BrushColor_Primary = Brushes.Red;
-                    RaisePropertyChanged("_BrushColor_Primary");
+                    BrushColor_Primary = new SolidColorBrush(_brushColor_Primary);
                 }
                 else if(secondColor.IsChecked == true)
                 {
                     _brushColor_Secondary = selectedColor;
-                    _BrushColor_Secondary = Brushes.Orange;
-                    RaisePropertyChanged("_BrushColor_Secondary");
+                    BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
                 }
-                pixelEditor.BrushColor = _brushColor_Primary;
+                pixelEditor.primaryBrush = _brushColor_Primary;
+                pixelEditor.secondaryBrush = _brushColor_Secondary;
                 int index = 0;
                 if (!isRecentlyPicked(selectedColor,ref index) && _recentColors.Count <= 10)
                 {
@@ -138,11 +151,11 @@ namespace PixelCreator
             }
             return false;
         }
+        //Tool select events
         private void PencilTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Pen;
             selectedTool = Tools.Tool.Pencil;
-            //pixelEditor.IsEnabled = !pixelEditor.IsEnabled;
         }
         private void FillBucketTool_Selected(object sender, RoutedEventArgs e)
         {
@@ -350,6 +363,8 @@ namespace PixelCreator
         }
         bool flag = true;
         public PowerEase easeMode = new PowerEase();
+        //Gif Maker
+        //Frame Panel Animation
         private void FramePanelClicked(object sender, MouseButtonEventArgs e)
         {
             if (flag == true)
@@ -370,15 +385,11 @@ namespace PixelCreator
             }
             flag = !flag;
         }
-
+        //Add frame button click event
         private void AddFrame_Clicked(object sender, RoutedEventArgs e)
         {
             System.Drawing.Bitmap bitmap = pixelEditor.ToBitmap();
-
-            string fileName = "file1.png";
-
-            CreateThumbnail(fileName, pixelEditor.GetWriteableBitmap());
-            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmap = pixelEditor.GetWriteableBitmap(), speed = "100ms" });
+            frameCollection.Add(new FrameGIF() { bitmap = pixelEditor.ToBitmap(), wbitmapByteArray = pixelEditor.ToByteArray(), Wbitmap = pixelEditor.GetWriteableBitmap(), Speed = "100ms" });
         }
 
         private void AllFrameSpeed_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -388,22 +399,23 @@ namespace PixelCreator
 
             foreach (var frame in frameCollection)
             {
-                frame.speed = frameSpeedcmb.SelectedValue.ToString();
-                frame.RaisePropertyChanged("speed");
+                frame.Speed = frameSpeedcmb.SelectedValue.ToString();
             }
         }
 
         private void PreviewGIFButton_Clicked(object sender, RoutedEventArgs e)
         {
             int framesCount = frameCollection.Count();
-
-            using (var gif = AnimatedGif.AnimatedGif.Create("gif.gif", 100))
+            
+            using (var gif = AnimatedGif.AnimatedGif.Create("C:/Users/PC/Documents/PixelCreator/gif.gif", 100))
             {
                 for (int i = 0; i < framesCount; i++)
                 {
-                    gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].speed.Replace("ms", "")), quality: GifQuality.Bit8);
+                    gif.AddFrame(frameCollection[i].bitmap, delay: int.Parse(frameCollection[i].Speed.Replace("ms", "")), quality: GifQuality.Bit8);
                 }
             }
+            PreviewGIFWindow preview = new PreviewGIFWindow();
+            preview.ShowDialog();
         }
 
         void CreateThumbnail(string filename, BitmapSource image5)
@@ -419,140 +431,20 @@ namespace PixelCreator
             }
         }
 
-        public BitmapImage BitmapFromSource(BitmapSource bitmapSource)
-        {
-
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            System.IO.MemoryStream memoryStream = new System.IO.MemoryStream();
-            BitmapImage bImg = new BitmapImage();
-
-            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-            encoder.Save(memoryStream);
-
-            memoryStream.Position = 0;
-            bImg.BeginInit();
-            bImg.StreamSource = memoryStream;
-            bImg.EndInit();
-
-            memoryStream.Close();
-
-            return bImg;
-        }
-        /* #region Relay Command for radial Menu */
-        private bool _isOpen1 = false;
-        public bool IsOpen1
-        {
-            get
-            {
-                return _isOpen1;
-            }
-            set
-            {
-                _isOpen1 = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _isOpen2 = false;
-        public bool IsOpen2
-        {
-            get
-            {
-                return _isOpen2;
-            }
-            set
-            {
-                _isOpen2 = value;
-                RaisePropertyChanged();
-            }
-        }
-        public ICommand CloseRadialMenu1
-        {
-            get
-            {
-                return new RelayCommand(() => IsOpen1 = false);
-            }
-        }
-        public ICommand OpenRadialMenu1
-        {
-            get
-            {
-                return new RelayCommand(() => { IsOpen1 = true; IsOpen2 = false; });
-            }
-        }
-        public ICommand CloseRadialMenu2
-        {
-            get
-            {
-                return new RelayCommand(() => IsOpen2 = false);
-            }
-        }
-        public ICommand OpenRadialMenu2
-        {
-            get
-            {
-                return new RelayCommand(() => { IsOpen2 = true; IsOpen1 = false; });
-            }
-        }
-        public ICommand Test1
-        {
-            get
-            {
-                return new RelayCommand(() => System.Diagnostics.Debug.WriteLine("1"));
-            }
-        }
-        public ICommand Test2
-        {
-            get
-            {
-                return new RelayCommand(() => System.Diagnostics.Debug.WriteLine("2"));
-            }
-        }
-        public ICommand Test3
-        {
-            get
-            {
-                return new RelayCommand(() => System.Diagnostics.Debug.WriteLine("3"));
-            }
-        }
-        public ICommand Test4
-        {
-            get
-            {
-                return new RelayCommand(() => System.Diagnostics.Debug.WriteLine("4"));
-            }
-        }
-        public ICommand Test5
-        {
-            get
-            {
-                return new RelayCommand(() => System.Diagnostics.Debug.WriteLine("5"));
-            }
-        }
-        public ICommand Test6
-        {
-            get
-            {
-                return new RelayCommand(
-                    () =>
-                    {
-                        System.Diagnostics.Debug.WriteLine("6");
-                    },
-                    () =>
-                    {
-                        return false; // To disable the 6th item
-                    }
-                );
-            }
-        }
         string currentFileName = "Untitled.pixc";
         string currentSaveLoc = "";
         bool isSavedToFile = false;
         private void NewButton_Clicked(object sender, RoutedEventArgs e)
         {
-            TriggerSaveMechanism();
+            if (!TriggerSaveMechanism())
+            {
+                return;
+            }
+            pixelEditor.ClearMap();
+            frameCollection.Clear();
         }
-        void TriggerSaveMechanism()
+
+        bool TriggerSaveMechanism()
         {
             if (pixelEditor.HasUnsavedChanges())
             {
@@ -561,17 +453,34 @@ namespace PixelCreator
                 {
                     if(currentSaveLoc == null)
                     {
-                        MessageBox.Show("Null");
+                        if (!isSavedToFile)
+                        {
+                            SaveFileDialog saveFileDialog = new SaveFileDialog();
+                            saveFileDialog.Filter = "PixelCreator (*.pixc)| *.pixc";
+                            saveFileDialog.DefaultExt = "*.pixc";
+                            saveFileDialog.OverwritePrompt = true;
+                            if (saveFileDialog.ShowDialog() == true)
+                            {
+                                currentSaveLoc = saveFileDialog.FileName;
+                                SaveToFile(currentFileName);
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            SaveToFile(currentFileName);
+                            return true;
+                        }
                     }
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
-                    return;
+                    return false;
                 }
             }
-            pixelEditor.ClearMap();
-            frameCollection.Clear();
 
+            
+            return true;
         }
         private void SaveButtonClicked(object sender, RoutedEventArgs e)
         {
@@ -600,6 +509,7 @@ namespace PixelCreator
         void SaveToFile(string path)
         {
             WriteToBinaryFile<BindingList<FrameGIF>>(path, frameCollection, false);
+            isSavedToFile = true;
         }
 
         public static void WriteToBinaryFile<T>(string filePath, T objectToWrite, bool append = false)
@@ -619,13 +529,30 @@ namespace PixelCreator
                 return (T)binaryFormatter.Deserialize(stream);
             }
         }
+        
+        
         private void OpenButton_Clicked(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if(openFileDialog.ShowDialog() == true)
             {
-                frameCollection = ReadFromBinaryFile<BindingList<FrameGIF>>(openFileDialog.FileName);
-                pixelEditor.SetWriteableBitmap(frameCollection[0].wbitmap);
+                FileInfo openfile = new FileInfo(openFileDialog.FileName);
+                try
+                {
+                    if (openfile.Exists)
+                    {
+                        frameCollection = ReadFromBinaryFile<BindingList<FrameGIF>>(openfile.Name);
+                        if (frameCollection.Count == 0)
+                            return;
+                        pixelEditor.SetWriteableBitmap(frameCollection[0].Wbitmap);
+                        pixelGrid.Child = null;
+                        pixelGrid.Child = pixelEditor;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             }
         }
 
@@ -636,10 +563,109 @@ namespace PixelCreator
             var frame = FrameContainer.SelectedItem as FrameGIF;
             if (frame == null)
                 return;
-            pixelEditor.SetWriteableBitmap(frame.wbitmap);
+            pixelEditor.SetWriteableBitmap(frame.Wbitmap);
             pixelGrid.Child = null;
             pixelGrid.Child = pixelEditor;
         }
-        /* #endregion */
+
+        private void CopyFrame_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (!FrameContainer.HasItems)
+                return;
+            var frame = FrameContainer.SelectedItem as FrameGIF;
+            if (frame == null)
+                return;
+            FrameGIF copiedFrame = frame.Clone();
+            frameCollection.Add(copiedFrame);
+        }
+
+        private void DeleteFrame_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (!FrameContainer.HasItems)
+                return;
+            var frame = FrameContainer.SelectedItem as FrameGIF;
+            if (frame == null)
+                return;
+            frameCollection.Remove(frame);
+        }
+        private void MoveLeftButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (FrameContainer.SelectedItem == null)
+            {
+                MessageBox.Show("Please select item!!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int selectedIndex = FrameContainer.SelectedIndex;
+
+            if (selectedIndex == 0)
+            {
+                FrameContainer.SelectedItem = frameCollection[0];
+                return;
+            }
+            else
+            {
+                SwapFile(selectedIndex, selectedIndex - 1);
+                FrameContainer.SelectedItem = frameCollection[selectedIndex - 1];
+            }
+
+        }
+        private void SwapFile(int indexA, int indexB)
+        {
+            frameCollection.Insert(indexB, frameCollection[indexA]);
+            frameCollection.RemoveAt(indexA + 1);
+        }
+        private void MoveRightButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            if (FrameContainer.SelectedItem == null)
+            {
+                MessageBox.Show("Please select item!!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int selectedIndex = FrameContainer.SelectedIndex;
+
+            if (selectedIndex == frameCollection.Count - 1)
+            {
+                FrameContainer.SelectedItem = frameCollection[frameCollection.Count - 1];
+                return;
+            }
+            else
+            {
+                SwapFile(selectedIndex + 1, selectedIndex);
+                FrameContainer.SelectedItem = frameCollection[selectedIndex + 1];
+            }
+        }
+
+        string _pixelSizeLabel;
+        public string PixelSizeLabel
+        {
+            get { return _pixelSizeLabel; }
+            set { _pixelSizeLabel = value;
+                RaisePropertyChanged("PixelSizeLabel");
+            }
+        }
+        private void PixelSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
+        }
+
+        private void ClearButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            pixelEditor.ClearMap();
+        }
+
+        private void ExportButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog exportImageDialog = new SaveFileDialog();
+            exportImageDialog.Filter = "Png (Protable network graphics| *.pixc";
+            exportImageDialog.DefaultExt = "*.png";
+            exportImageDialog.OverwritePrompt = true;
+            if(exportImageDialog.ShowDialog() == true)
+            {
+                CreateThumbnail(exportImageDialog.FileName, pixelEditor.GetWriteableBitmap());
+            }
+            
+        }
     }
 }
