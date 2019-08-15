@@ -229,7 +229,7 @@ namespace PixelCreator
                         pixelEditor.Rotate(270);
                     }
                     break;
-                case "Rotate Left 180°":
+                case "Rotate 180°":
                     {
                         pixelEditor.Rotate(180);
                     }
