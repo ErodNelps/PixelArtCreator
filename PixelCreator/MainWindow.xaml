@@ -29,16 +29,24 @@
                 <Fluent:RibbonTabItem Header="Home">
                     <!--Clipboard Interaction-->
                     <Fluent:RibbonGroupBox Header="Clipboard">
-                        <Fluent:Button Header="Save" Icon="/Icons/save.png" LargeIcon="/Icons/save.png" Click="SaveButtonClicked"></Fluent:Button>
+                        <Fluent:Button Header="Save" Click="SaveButtonClicked">
+                            <Fluent:Button.LargeIcon>
+                                <Image Source="/Icons/save.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                            </Fluent:Button.LargeIcon>
+                        </Fluent:Button>
                         <StackPanel>
-                            <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31" Click="ClearButton_Clicked">
+                            <Button BorderBrush="Transparent" Background="Transparent" Width="31" Height="31" Click="ClearButton_Clicked" ToolTip="Clear">
                                 <Image Source="/Icons/clear.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                             </Button>
                         </StackPanel>
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Header="Image">
                         <StackPanel>
-                            <Fluent:Button Header="Copy"></Fluent:Button>
+                            <Fluent:Button Header="Copy">
+                                <Fluent:Button.LargeIcon>
+                                    <Image Source="/Icons/copy.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                                </Fluent:Button.LargeIcon>
+                            </Fluent:Button>
                         </StackPanel>
                     </Fluent:RibbonGroupBox>
                     <!--Tool Group-->
@@ -55,47 +63,48 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.Items>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" IsChecked="True" ToggleButton.Checked="PencilTool_Selected" ToolTip="Pencil">
                                     <Image Source="/Icons/pencil.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="EraserTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="EraserTool_Selected" ToolTip="Eraser">
                                     <Image Source="/Icons/rubber.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="FillBucketTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="FillBucketTool_Selected" ToolTip="Fill with color">
                                     <Image Source="/Icons/paint-bucket.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ColorPickerTool_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ColorPickerTool_Selected" ToolTip="Color Picker">
                                     <Image Source="/Icons/color-picker.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton x:Name="handTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="HandTool_Selected">
+                                <RadioButton x:Name="handTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="HandTool_Selected" ToolTip="Hand">
                                     <Image Source="/Icons/grab.png" RenderOptions.BitmapScalingMode="HighQuality" RenderTransformOrigin="0.226,0.387"></Image>
                                 </RadioButton>
-                                <RadioButton x:Name="zoomInTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ZoomInTool_Selected">
+                                <RadioButton x:Name="zoomInTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ZoomInTool_Selected" ToolTip="Zoom In">
                                     <Image Source="/Icons/zoom-in.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton x:Name="zoomOutTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent">
+                                <RadioButton x:Name="zoomOutTool" Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="ZoomOutTool_Selected" ToolTip="Zoom Out">
                                     <Image Source="/Icons/zoom-out.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawRectangle_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawRectangle_Selected" ToolTip="Draw Rectangle">
                                     <Image Source="/Icons/rectangle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawEllipse_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawEllipse_Selected" ToolTip="Draw Ellipse">
                                     <Image Source="/Icons/circle.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
-                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawLine_Selected">
+                                <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Background="Transparent" BorderBrush="Transparent" ToggleButton.Checked="DrawLine_Selected" ToolTip="Draw Line">
                                     <Image Source="/Icons/straight-line.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
                                 </RadioButton>
                             </ItemsControl.Items>
                         </ItemsControl>
                         <Menu Background="Transparent">
-                            <MenuItem x:Name="AddMethodMenuItem" Height="40" Width="52">
+                            <MenuItem x:Name="AddMethodMenuItem" Height="40" Width="52" ToolTip="Rotate">
                                 <MenuItem.Icon>
                                     <Image Source="Icons/rotation.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="3,-15,-26,-14"/>
                                 </MenuItem.Icon>
                                 <MenuItem Header="Rotate Left 90°" Click="RotateMenuItemClicked" />
                                 <MenuItem Header="Rotate Right 90°" Click="RotateMenuItemClicked"  />
-                                <MenuItem Header="Rotate Left 180°" Click="RotateMenuItemClicked"  />
-                                <MenuItem Header="Rotate Right 180°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Rotate 180°" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Flip Vertical" Click="RotateMenuItemClicked"  />
+                                <MenuItem Header="Flip Horizontal" Click="RotateMenuItemClicked"  />
                             </MenuItem>
                         </Menu>
 
@@ -108,10 +117,10 @@
                     </Fluent:RibbonGroupBox>
                     <Fluent:RibbonGroupBox Header="Color">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="primaryColor" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Width="40" Background="Transparent" BorderBrush="Transparent">
+                            <RadioButton x:Name="primaryColor" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Width="40" Background="Transparent" BorderBrush="Transparent" ToolTip="Primary Color">
                                 <Rectangle Width="34" Height="34" Fill="{Binding BrushColor_Primary}" Stroke="Gray"></Rectangle>
                             </RadioButton>
-                            <RadioButton x:Name="secondColor" Style="{StaticResource {x:Type ToggleButton}}" Width="40" Background="Transparent" BorderBrush="Transparent">
+                            <RadioButton x:Name="secondColor" Style="{StaticResource {x:Type ToggleButton}}" Width="40" Background="Transparent" BorderBrush="Transparent" ToolTip="Secondary Color">
                                 <Rectangle Width="30" Height="30" Fill="{Binding BrushColor_Secondary}" Stroke="Gray"></Rectangle>
                             </RadioButton>
                             <ListView>
@@ -248,7 +257,7 @@
                         </TransformGroup>
                     </Grid.LayoutTransform>
                     <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="500" Width="500" x:Name="pixelGrid" MouseEnter="pixelGridMouseEnter" MouseLeave="pixelGridMouseLeave">
-
+                        
                     </Viewbox>
 
                 </Grid>

@@ -86,7 +86,7 @@ namespace PixelCreator
             _BrushColor_Secondary = new SolidColorBrush(_brushColor_Secondary);
             PixelSizeLabel = $"Pixel Size: ({pixelSizeSlider.Value/10})";
 
-            Directory.CreateDirectory("C:/Users/PC/Documents/PixelCreator");
+            //Directory.CreateDirectory("C:/Users/PC/Documents/PixelCreator");
         }
         
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -175,6 +175,11 @@ namespace PixelCreator
             Mouse.OverrideCursor = Cursors.Cross;
             selectedTool = Tools.Tool.ZoomIn;
         }
+        private void ZoomOutTool_Selected(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Cross;
+            selectedTool = Tools.Tool.ZoomOut;
+        }
         private void HandTool_Selected(object sender, RoutedEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Hand;
@@ -222,17 +227,22 @@ namespace PixelCreator
                     break;
                 case "Rotate Right 90°":
                     {
-                        pixelEditor.Rotate(-90);
+                        pixelEditor.Rotate(270);
                     }
                     break;
-                case "Rotate Left 180°":
+                case "Rotate 180°":
                     {
                         pixelEditor.Rotate(180);
                     }
                     break;
-                case "Rotate Right 180°":
+                case "Flip Vertical":
                     {
-                        pixelEditor.Rotate(-180);
+                        pixelEditor.FlipVertical();
+                    }
+                    break;
+                case "Flip Horizontal":
+                    {
+                        pixelEditor.FlipHorizontal();
                     }
                     break;
                 default:
